@@ -17,6 +17,7 @@ Singleton {
     readonly property int recordPad: 12
     readonly property int recordRowH: 34
     readonly property int recordRows: 6
+    readonly property int recordStopGrace: 3000
     readonly property int netW: 320
     readonly property int netPad: 12
     readonly property int netRowH: 36
@@ -101,3 +102,4 @@ Singleton {
     readonly property real batLow: 0.2
     readonly property int ease: Easing.OutCubic
 }
+

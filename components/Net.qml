@@ -95,7 +95,6 @@ Singleton {
         asking = ""
         target = item.ssid
         secret = ""
-        up.stdinEnabled = false
         up.command = ["nmcli", "device", "wifi", "connect", item.ssid]
         up.running = true
     }
@@ -108,18 +107,38 @@ Singleton {
         pending = asking
         phase = "connecting"
         target = asking
+        asking = ""
         secret = psk
-        up.stdinEnabled = true
-        up.command = ["nmcli", "--ask", "device", "wifi", "connect", asking]
+        if (up.running) {
+            up.write(secret + "\n")
+            secret = ""
+            return
+        }
+        up.command = ["nmcli", "--ask", "device", "wifi", "connect", target]
         up.running = true
     }
 
     function cancelAsk() {
+        if (up.running)
+            up.signal(15)
         asking = ""
         error = ""
-        if (!busy) {
-            pending = ""
-            phase = ""
+        busy = false
+        secret = ""
+        target = ""
+        pending = ""
+        phase = ""
+    }
+
+    function readPrompt(text) {
+        if (!up.running || root.asking !== "")
+            return
+        const t = text.toLowerCase()
+        if (t.indexOf("password") >= 0 || t.indexOf("passphrase") >= 0 || t.indexOf("secret") >= 0) {
+            root.asking = root.target
+            root.error = ""
+            root.busy = false
+            root.phase = ""
         }
     }
 
@@ -233,6 +252,7 @@ Singleton {
 
     Process {
         id: up
+        stdinEnabled: true
         onStarted: {
             if (root.secret === "")
                 return
@@ -240,32 +260,31 @@ Singleton {
             root.secret = ""
         }
         stderr: StdioCollector {
-            onStreamFinished: {
-                const t = text.trim().toLowerCase()
-                if (t.indexOf("password") >= 0 || t.indexOf("secrets") >= 0 || t.indexOf("802-11-wireless-security") >= 0) {
-                    if (root.asking === "")
-                        root.asking = root.target
-                    root.error = ""
-                    root.busy = false
-                    root.phase = ""
-                } else if (t !== "") {
-                    root.error = "failed"
-                    root.asking = ""
-                }
-            }
+            waitForEnd: false
+            onTextChanged: root.readPrompt(text)
         }
         onExited: code => {
             root.busy = false
             if (code === 0) {
                 root.asking = ""
                 root.error = ""
+                root.target = ""
+                root.secret = ""
                 root.phase = ""
                 root.refresh()
                 settle.restart()
             } else {
-                if (root.asking === "" && root.error === "")
-                    root.asking = root.target
+                const t = stderr.text.toLowerCase()
+                const needsSecret = t.indexOf("password") >= 0 || t.indexOf("passphrase") >= 0 || t.indexOf("secret") >= 0
+                if (root.asking === "" && root.error === "") {
+                    if (needsSecret)
+                        root.asking = root.target
+                    else
+                        root.error = "failed"
+                }
                 if (root.asking === "") {
+                    root.target = ""
+                    root.secret = ""
                     root.phase = ""
                     root.pending = ""
                 }
@@ -287,8 +306,11 @@ Singleton {
     Timer {
         id: guard
         interval: 30000
-        running: up.running && up.stdinEnabled
-        onTriggered: up.signal(15)
+        running: up.running && root.asking !== ""
+        onTriggered: {
+            if (up.running)
+                up.signal(15)
+        }
     }
 
     Timer {
@@ -322,3 +344,4 @@ Singleton {
         }
     }
 }
+

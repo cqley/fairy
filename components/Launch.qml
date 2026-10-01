@@ -9,6 +9,11 @@ Fade {
     property int start: 0
     property real px: -1
     property real py: -1
+    Timer {
+        id: snapRelease
+        interval: 0
+        onTriggered: root.snap = false
+    }
     readonly property var raw: find(input.text)
     property var results: raw
 
@@ -50,13 +55,14 @@ Fade {
         const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
         snap = Math.abs(t - sel) > Theme.rows
         sel = t
-        snap = false
+        if (snap)
+            snapRelease.restart()
     }
 
     function clear() {
         snap = true
         input.text = ""
-        snap = false
+        snapRelease.restart()
     }
 
     function run() {
@@ -315,4 +321,5 @@ Fade {
         onStep: n => root.move(n, false)
     }
 }
+
 

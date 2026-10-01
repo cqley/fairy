@@ -9,6 +9,11 @@ Fade {
     property int start: 0
     property real px: -1
     property real py: -1
+    Timer {
+        id: snapRelease
+        interval: 0
+        onTriggered: root.snap = false
+    }
     readonly property var items: Record.items
     readonly property int n: items.length
 
@@ -22,14 +27,15 @@ Fade {
         const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
         snap = Math.abs(t - sel) > Theme.recordRows
         sel = t
-        snap = false
+        if (snap)
+            snapRelease.restart()
     }
 
     function reset() {
         snap = true
         sel = 0
         start = 0
-        snap = false
+        snapRelease.restart()
     }
 
     function run() {
@@ -224,3 +230,4 @@ Fade {
         onStep: n => root.move(n, false)
     }
 }
+

@@ -9,6 +9,11 @@ Fade {
     property int start: 0
     property real px: -1
     property real py: -1
+    Timer {
+        id: snapRelease
+        interval: 0
+        onTriggered: root.snap = false
+    }
     readonly property var items: Net.list
     readonly property int n: items ? items.length : 0
     readonly property bool ask: Net.asking !== ""
@@ -23,7 +28,8 @@ Fade {
         const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
         snap = Math.abs(t - sel) > Theme.netRows
         sel = t
-        snap = false
+        if (snap)
+            snapRelease.restart()
     }
 
     function reset() {
@@ -31,7 +37,7 @@ Fade {
         sel = 0
         start = 0
         pass.text = ""
-        snap = false
+        snapRelease.restart()
     }
 
     function run() {
@@ -564,3 +570,4 @@ Fade {
         onStep: n => root.move(n, false)
     }
 }
+

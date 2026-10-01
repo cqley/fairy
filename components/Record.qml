@@ -184,10 +184,10 @@ Singleton {
 
     Timer {
         id: settle
-        interval: 1200
+        interval: Theme.recordStopGrace
         onTriggered: {
             if (proc.running)
-                proc.running = false
+                proc.signal(15)
         }
     }
 
@@ -216,3 +216,4 @@ Singleton {
         }
     }
 }
+
