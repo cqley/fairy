@@ -18,14 +18,19 @@ Item {
     transitions: [
         Transition {
             to: "on"
-            SequentialAnimation {
-                PauseAnimation { duration: Theme.fade }
-                NumberAnimation { property: "opacity"; duration: Theme.speed; easing.type: Theme.ease }
+            NumberAnimation {
+                property: "opacity"
+                duration: Theme.speed
+                easing.type: Theme.ease
             }
         },
         Transition {
             from: "on"
-            NumberAnimation { property: "opacity"; duration: Theme.fade; easing.type: Theme.ease }
+            NumberAnimation {
+                property: "opacity"
+                duration: Theme.fade
+                easing.type: Theme.ease
+            }
         }
     ]
 }
