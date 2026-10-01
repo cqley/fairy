@@ -78,8 +78,9 @@ Item {
         : root.hot ? (root.media ? tune.y + tune.height + Theme.pad : Theme.openH)
         : Theme.h
 
-    readonly property bool resizing: Math.abs(root.wAnim - root.targetW) > 0.5
-        || Math.abs(root.hAnim - root.targetH) > 0.5
+    readonly property bool resizing:
+        Math.abs(root.wAnim - root.targetW) > 0.5 ||
+        Math.abs(root.hAnim - root.targetH) > 0.5
 
     Binding {
         target: root
@@ -153,7 +154,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.lpad
             shown: Launcher.open
-            ready: !root.resizing
+            ready: true
         }
 
         PowerMenu {
