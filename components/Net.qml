@@ -44,7 +44,8 @@ Singleton {
         poll.restart()
     } else {
         poll.stop()
-        asking = ""
+        if (asking !== "")
+            cancelAsk()
         error = ""
         if (!busy) {
             pending = ""

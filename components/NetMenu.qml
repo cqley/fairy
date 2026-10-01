@@ -1,43 +1,20 @@
 import QtQuick
 import Quickshell
 
-Fade {
+Pick {
     id: root
-    property int sel: 0
-    property bool fast: false
-    property bool snap: false
-    property int start: 0
-    property real px: -1
-    property real py: -1
-    Timer {
-        id: snapRelease
-        interval: 0
-        onTriggered: root.snap = false
-    }
     readonly property var items: Net.list
-    readonly property int n: items ? items.length : 0
     readonly property bool ask: Net.asking !== ""
 
+    n: items ? items.length : 0
+    rows: Theme.netRows
     width: Theme.netW - 2 * Theme.netPad
     height: col.height
     focus: shown
 
-    function move(d, wrap) {
-        if (!n)
-            return
-        const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
-        snap = Math.abs(t - sel) > Theme.netRows
-        sel = t
-        if (snap)
-            snapRelease.restart()
-    }
-
-    function reset() {
-        snap = true
-        sel = 0
-        start = 0
+    function fresh() {
+        reset()
         pass.text = ""
-        snapRelease.restart()
     }
 
     function run() {
@@ -45,41 +22,23 @@ Fade {
             Net.submitPsk(pass.text)
             return
         }
-        if (!n || Net.busy)
-            return
-        Net.pick(items[sel])
-    }
-
-    function close() {
-        Net.open = false
+        if (n && !Net.busy)
+            Net.pick(items[sel])
     }
 
     function statusOf(item) {
         if (!item)
             return ""
-        if (Net.pending === item.ssid) {
-            if (Net.phase === "connecting")
-                return "connecting"
-            if (Net.phase === "disconnecting")
-                return "disconnecting"
-        }
-        if (item.active)
-            return "connected"
-        return ""
-    }
-
-    onSelChanged: {
-        if (sel < start)
-            start = sel
-        else if (sel > start + Theme.netRows - 1)
-            start = sel - Theme.netRows + 1
+        if (Net.pending === item.ssid && Net.phase !== "")
+            return Net.phase
+        return item.active ? "connected" : ""
     }
 
     onVisibleChanged: {
         if (visible)
             forceActiveFocus()
         else
-            reset()
+            fresh()
     }
 
     onAskChanged: {
@@ -96,7 +55,7 @@ Fade {
         function onOpenChanged() {
             if (!Net.open)
                 return
-            root.reset()
+            root.fresh()
             root.forceActiveFocus()
         }
         function onListChanged() {
@@ -118,53 +77,33 @@ Fade {
     Keys.onPressed: e => {
         const k = e.key
         if (k === Qt.Key_Escape) {
-            if (root.ask)
+            if (ask)
                 Net.cancelAsk()
             else
-                root.close()
-            e.accepted = true
+                Net.open = false
+        } else if (ask || Net.busy)
             return
-        }
-        if (root.ask || Net.busy)
-            return
-        const w = !e.isAutoRepeat
-        root.fast = e.isAutoRepeat
-        if (k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space)
-            root.run()
-        else if (k === Qt.Key_Down || k === Qt.Key_J || k === Qt.Key_Tab)
-            root.move(1, w)
-        else if (k === Qt.Key_Up || k === Qt.Key_K || k === Qt.Key_Backtab)
-            root.move(-1, w)
-        else if (k === Qt.Key_PageDown)
-            root.move(Theme.netRows, false)
-        else if (k === Qt.Key_PageUp)
-            root.move(-Theme.netRows, false)
-        else
+        else if (k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space)
+            run()
+        else if (!nav(e))
             return
         e.accepted = true
-    }
-
-    Keys.onReleased: e => {
-        if (!e.isAutoRepeat)
-            root.fast = false
     }
 
     Column {
         id: col
         width: parent.width
-        spacing: 6
+        spacing: Theme.listGap
 
         Item {
             width: parent.width
             height: Theme.netRowH
 
             Txt {
-                id: title
                 anchors.left: parent.left
                 anchors.leftMargin: 4
                 anchors.verticalCenter: parent.verticalCenter
                 text: Net.title
-                font.pixelSize: 12
                 font.weight: Font.DemiBold
                 color: !Net.enabled ? Theme.red : Net.phase !== "" ? Theme.accent : Theme.fg
                 opacity: pulse.running ? 0.55 + 0.45 * pulse.val : 1
@@ -186,31 +125,35 @@ Fade {
             SequentialAnimation {
                 running: pulse.running
                 loops: Animation.Infinite
+
                 NumberAnimation {
                     target: pulse
                     property: "val"
                     from: 1
                     to: 0
-                    duration: 700
+                    duration: Theme.blink
                     easing.type: Easing.InOutSine
                 }
+
                 NumberAnimation {
                     target: pulse
                     property: "val"
                     from: 0
                     to: 1
-                    duration: 700
+                    duration: Theme.blink
                     easing.type: Easing.InOutSine
                 }
             }
 
             Rectangle {
+                id: toggle
+                readonly property real gap: (height - Theme.netKnob) / 2
                 anchors.right: parent.right
                 anchors.rightMargin: 2
                 anchors.verticalCenter: parent.verticalCenter
-                width: 36
-                height: 20
-                radius: 10
+                width: Theme.netToggleW
+                height: Theme.netToggleH
+                radius: height / 2
                 color: Net.enabled ? Theme.accent : Theme.tile
                 opacity: Net.busy ? 0.5 : 1
                 antialiasing: true
@@ -230,11 +173,11 @@ Fade {
                 }
 
                 Rectangle {
-                    x: Net.enabled ? parent.width - width - 3 : 3
+                    x: Net.enabled ? toggle.width - width - toggle.gap : toggle.gap
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 14
-                    height: 14
-                    radius: 7
+                    width: Theme.netKnob
+                    height: Theme.netKnob
+                    radius: width / 2
                     color: Theme.fg
                     antialiasing: true
 
@@ -255,13 +198,7 @@ Fade {
             }
         }
 
-        Rectangle {
-            width: parent.width
-            height: 1
-            color: Theme.fg
-            opacity: 0.1
-            visible: Net.enabled
-        }
+        Rule { visible: Net.enabled }
 
         Item {
             width: parent.width
@@ -283,47 +220,28 @@ Fade {
                 Behavior on contentY {
                     enabled: !root.snap
                     NumberAnimation {
-                        duration: root.fast ? Theme.fast : Theme.glide
+                        duration: root.dur
                         easing.type: Theme.ease
                     }
                 }
 
-                highlight: Rectangle {
-                    y: root.sel * Theme.netRowH
+                highlight: Hi {
+                    pick: root
+                    row: Theme.netRowH
                     width: list.width
-                    height: Theme.netRowH
-                    radius: height / 2
-                    color: Theme.chip
-                    antialiasing: true
                     visible: !root.ask
-
-                    Behavior on y {
-                        enabled: !root.snap
-                        NumberAnimation {
-                            duration: root.fast ? Theme.fast : Theme.glide
-                            easing.type: Theme.ease
-                        }
-                    }
-
-                    Rectangle {
-                        x: 5
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 3
-                        height: 16
-                        radius: 1.5
-                        color: Theme.accent
-                    }
                 }
 
                 delegate: Item {
                     id: row
                     required property var modelData
                     required property int index
-                    readonly property bool on: modelData && modelData.active
-                    readonly property bool aimed: modelData && Net.pending === modelData.ssid
+                    readonly property bool on: !!modelData && !!modelData.active
+                    readonly property bool aimed: !!modelData && Net.pending === modelData.ssid
+                    readonly property bool busy: aimed && Net.phase !== ""
                     readonly property string status: root.statusOf(modelData)
                     readonly property real sig: modelData ? modelData.signal : 0
-                    readonly property bool locked: modelData && modelData.locked
+                    readonly property bool locked: !!modelData && !!modelData.locked
 
                     width: list.width
                     height: Theme.netRowH
@@ -338,13 +256,13 @@ Fade {
 
                     Txt {
                         anchors.left: parent.left
-                        anchors.leftMargin: 18
+                        anchors.leftMargin: Theme.rowX
                         anchors.right: meta.left
-                        anchors.rightMargin: 8
+                        anchors.rightMargin: Theme.rowGap
                         anchors.verticalCenter: parent.verticalCenter
                         text: row.modelData ? row.modelData.ssid : ""
                         elide: Text.ElideRight
-                        font.pixelSize: 13
+                        font.pixelSize: Theme.fsL
                         font.weight: row.on || row.aimed ? Font.DemiBold : Font.Normal
                         color: row.on || row.aimed ? Theme.accent : Theme.fg
 
@@ -361,20 +279,14 @@ Fade {
                         anchors.right: parent.right
                         anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 8
+                        spacing: Theme.rowGap
 
                         Txt {
                             anchors.verticalCenter: parent.verticalCenter
                             text: row.status
-                            font.pixelSize: 11
+                            font.pixelSize: Theme.fsS
                             color: Theme.accent
-                            opacity: {
-                                if (row.status === "")
-                                    return 0
-                                if (row.aimed && Net.phase !== "")
-                                    return 0.5 + 0.5 * pulse.val
-                                return 0.55
-                            }
+                            opacity: row.busy ? 0.5 + 0.5 * pulse.val : row.status === "" ? 0 : 0.55
                             visible: text !== ""
 
                             Behavior on opacity {
@@ -386,61 +298,21 @@ Fade {
                             }
                         }
 
-                        Item {
-                            width: 14
-                            height: 12
+                        Lock {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: row.locked && row.status === ""
                             opacity: 0.55
-
-                            Rectangle {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                y: 0
-                                width: 8
-                                height: 6
-                                radius: 4
-                                color: "transparent"
-                                border.width: 1.4
-                                border.color: Theme.fg
-                                antialiasing: true
-                            }
-
-                            Rectangle {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                y: 4
-                                width: 10
-                                height: 8
-                                radius: 2
-                                color: Theme.fg
-                                antialiasing: true
-                            }
                         }
 
-                        Row {
-                            id: bars
+                        Sig {
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: 2
-                            readonly property int level: Math.round(row.sig * 4)
-                            opacity: row.aimed && Net.phase !== "" ? 0.35 : 1
+                            level: Math.round(row.sig * 4)
+                            opacity: row.busy ? 0.35 : 1
 
                             Behavior on opacity {
                                 NumberAnimation {
                                     duration: Theme.glide
                                     easing.type: Theme.ease
-                                }
-                            }
-
-                            Repeater {
-                                model: 4
-                                Rectangle {
-                                    required property int index
-                                    anchors.bottom: parent.bottom
-                                    width: 3
-                                    height: 4 + index * 2
-                                    radius: 1
-                                    color: Theme.fg
-                                    opacity: bars.level > index ? 0.9 : 0.2
-                                    antialiasing: true
                                 }
                             }
                         }
@@ -451,14 +323,7 @@ Fade {
                         enabled: !root.ask && !Net.busy
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onPositionChanged: m => {
-                            const p = mapToItem(null, m.x, m.y)
-                            if (p.x === root.px && p.y === root.py)
-                                return
-                            root.px = p.x
-                            root.py = p.y
-                            root.sel = row.index
-                        }
+                        onPositionChanged: m => root.aim(mapToItem(null, m.x, m.y), row.index)
                         onClicked: {
                             root.sel = row.index
                             root.run()
@@ -475,44 +340,37 @@ Fade {
 
             Txt {
                 id: empty
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.centerIn: parent
                 text: "no networks"
-                font.pixelSize: 12
                 opacity: 0.45
             }
         }
 
         Column {
             width: parent.width
-            spacing: 6
+            spacing: Theme.listGap
             visible: root.ask
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: Theme.fg
-                opacity: 0.1
-            }
+            Rule {}
 
             Txt {
                 text: "password for " + Net.asking
-                font.pixelSize: 11
+                font.pixelSize: Theme.fsS
                 opacity: 0.55
             }
 
             Rectangle {
                 width: parent.width
                 height: Theme.netFieldH
-                radius: Theme.netFieldH / 2
+                radius: height / 2
                 color: Theme.chip
                 antialiasing: true
 
                 TextInput {
                     id: pass
                     anchors.fill: parent
-                    anchors.leftMargin: 14
-                    anchors.rightMargin: 14
+                    anchors.leftMargin: Theme.rowR
+                    anchors.rightMargin: Theme.rowR
                     verticalAlignment: TextInput.AlignVCenter
                     color: Theme.fg
                     selectionColor: Theme.accent
@@ -521,7 +379,7 @@ Fade {
                     passwordCharacter: "•"
                     selectByMouse: true
                     font.family: Theme.font
-                    font.pixelSize: 13
+                    font.pixelSize: Theme.fsL
                     clip: true
 
                     Keys.onPressed: e => {
@@ -539,11 +397,11 @@ Fade {
 
                 Txt {
                     anchors.left: parent.left
-                    anchors.leftMargin: 14
+                    anchors.leftMargin: Theme.rowR
                     anchors.verticalCenter: parent.verticalCenter
                     text: "password"
                     opacity: 0.35
-                    font.pixelSize: 13
+                    font.pixelSize: Theme.fsL
                     visible: pass.text === ""
                 }
             }
@@ -559,7 +417,7 @@ Fade {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: Net.error
                 color: Theme.red
-                font.pixelSize: 11
+                font.pixelSize: Theme.fsS
             }
         }
     }

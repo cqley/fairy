@@ -53,9 +53,12 @@ Fade {
         const a = []
         for (let i = 0; i < folder.count; i++)
             a.push({ path: folder.get(i, "filePath"), name: folder.get(i, "fileName") })
-        const same = a.length === files.length && a.length > 0
+        if (a.length === files.length && a.every((f, i) => f.path === files[i].path))
+            return
+        const keep = a.length === files.length && a.length > 0
         files = a
-        if (!same) reset()
+        if (!keep)
+            reset()
     }
 
     function go(i, instant) {
@@ -107,6 +110,7 @@ Fade {
 
     onVisibleChanged: {
         if (visible) {
+            rebuild()
             forceActiveFocus()
             reset()
         }
@@ -146,7 +150,7 @@ Fade {
         Txt {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "wallpaper"
-            font.pixelSize: 12
+            font.pixelSize: Theme.fsM
             font.weight: Font.DemiBold
         }
 
@@ -199,7 +203,7 @@ Fade {
 
                                 Image {
                                     anchors.fill: parent
-                                    source: cell.info ? "file://" + cell.info.path : ""
+                                    source: cell.info ? Theme.url(cell.info.path) : ""
                                     asynchronous: true
                                     cache: true
                                     fillMode: Image.PreserveAspectCrop
@@ -246,7 +250,7 @@ Fade {
             text: root.n > 0 ? root.files[root.sel].name : ""
             elide: Text.ElideMiddle
             opacity: 0.55
-            font.pixelSize: 11
+            font.pixelSize: Theme.fsS
         }
     }
 

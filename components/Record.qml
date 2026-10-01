@@ -115,43 +115,15 @@ Singleton {
 
     Process {
         id: detect
-        command: ["sh", "-lc", "command -v gpu-screen-recorder; command -v wf-recorder; command -v wl-screenrec; true"]
+        command: ["sh", "-lc", "for b in gpu-screen-recorder wf-recorder wl-screenrec; do p=$(command -v $b) && echo \"$b $p\" && break; done; true"]
         stdout: StdioCollector {
             onStreamFinished: {
-                const lines = text.trim().split("\n").filter(l => l.length > 0)
-                let b = ""
-                let path = ""
-                for (let i = 0; i < lines.length; i++) {
-                    const l = lines[i]
-                    if (l.indexOf("gpu-screen-recorder") >= 0) {
-                        b = "gsr"
-                        path = l
-                        break
-                    }
-                }
-                if (b === "") {
-                    for (let i = 0; i < lines.length; i++) {
-                        const l = lines[i]
-                        if (l.indexOf("wf-recorder") >= 0) {
-                            b = "wf"
-                            path = l
-                            break
-                        }
-                    }
-                }
-                if (b === "") {
-                    for (let i = 0; i < lines.length; i++) {
-                        const l = lines[i]
-                        if (l.indexOf("wl-screenrec") >= 0) {
-                            b = "wl"
-                            path = l
-                            break
-                        }
-                    }
-                }
-                root.backend = b
-                root.bin = path
-                if (b === "")
+                const t = text.trim()
+                const i = t.indexOf(" ")
+                const kinds = { "gpu-screen-recorder": "gsr", "wf-recorder": "wf", "wl-screenrec": "wl" }
+                root.backend = i > 0 ? kinds[t.slice(0, i)] || "" : ""
+                root.bin = root.backend !== "" ? t.slice(i + 1) : ""
+                if (root.backend === "")
                     root.lastError = "no recorder found"
             }
         }

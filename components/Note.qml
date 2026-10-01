@@ -21,7 +21,7 @@ Fade {
         body = n.body.replace(/^\s*<a[^>]*>.*?<\/a>\s*/, "").replace(/<[^>]*>/g, "")
         letter = (n.appName || "?")[0].toLowerCase()
         critical = n.urgency === NotificationUrgency.Critical
-        source = n.image !== "" ? n.image : n.appIcon.startsWith("/") ? "file://" + n.appIcon : Quickshell.iconPath(n.appIcon, true)
+        source = n.image !== "" ? n.image : n.appIcon.startsWith("/") ? Theme.url(n.appIcon) : Quickshell.iconPath(n.appIcon, true)
     }
 
     ClippingRectangle {

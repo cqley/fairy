@@ -6,9 +6,10 @@ Txt {
     readonly property real pct: UPower.displayDevice.percentage
     readonly property bool charging: UPower.displayDevice.state === UPowerDeviceState.Charging
     readonly property bool low: pct <= Theme.batLow && !charging
-    width: Theme.batW
+    width: Theme.batW + Theme.rowGap
+    leftPadding: Theme.rowGap
     horizontalAlignment: Text.AlignRight
     text: Math.round(pct * 100) + "%"
     color: low ? Theme.red : Theme.fg
-    font.pixelSize: 13
+    font.pixelSize: Theme.fsL
 }

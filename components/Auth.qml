@@ -118,7 +118,7 @@ Fade {
 
         Txt {
             width: parent.width
-            visible: root.flow && (root.flow.failed || (root.flow.supplementaryIsError && root.flow.supplementaryMessage !== ""))
+            visible: !!root.flow && (root.flow.failed || (root.flow.supplementaryIsError && root.flow.supplementaryMessage !== ""))
             text: root.flow && root.flow.supplementaryIsError && root.flow.supplementaryMessage !== "" ? root.flow.supplementaryMessage.toLowerCase() : "authentication failed, try again"
             color: Theme.red
             wrapMode: Text.Wrap
@@ -163,7 +163,7 @@ Fade {
                 font.family: Theme.font
                 font.pixelSize: 13
                 font.weight: Font.Medium
-                enabled: root.flow && root.flow.isResponseRequired
+                enabled: !!root.flow && root.flow.isResponseRequired
                 onAccepted: root.submit()
             }
 

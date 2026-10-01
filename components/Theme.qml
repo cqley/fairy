@@ -23,12 +23,25 @@ Singleton {
     readonly property int netRowH: 36
     readonly property int netRows: 6
     readonly property int netFieldH: 34
+    readonly property int netToggleW: 36
+    readonly property int netToggleH: 20
+    readonly property int netKnob: 14
     readonly property color bg: "#000000"
     readonly property color fg: "#ffffff"
     readonly property color chip: "#1c1c1e"
     readonly property color tile: "#2c2c2e"
     readonly property color accent: "#f2b8e2"
     readonly property color red: "#e5534b"
+
+    readonly property int listGap: 6
+    readonly property int rowX: 18
+    readonly property int rowR: 14
+    readonly property int markW: 3
+    readonly property int markX: 5
+    readonly property int fsXS: 10
+    readonly property int fsS: 11
+    readonly property int fsM: 12
+    readonly property int fsL: 13
 
     readonly property int gap: 6
     readonly property int pad: 16
@@ -52,7 +65,6 @@ Singleton {
     readonly property int pwPad: 10
     readonly property int pwN: 5
     readonly property int powerW: pwW * pwN + pwGap * (pwN - 1) + pwPad * 2
-    readonly property int powerH: pwH + pwPad * 2
 
     readonly property int wallPad: 14
     readonly property int thumbW: 120
@@ -77,13 +89,13 @@ Singleton {
     readonly property int glyphS: 14
     readonly property int playGlyph: 14
     readonly property int barH: 3
-    readonly property int timeH: 10
     readonly property int micS: 12
     readonly property int clockPx: 14
     readonly property int batW: 30
     readonly property int rowGap: 8
     readonly property int slide: 220
     readonly property int pulse: 1400
+    readonly property int blink: 700
     readonly property int slotHit: 6
     readonly property real slotScale: 0.7
     readonly property real dotLow: 0.65
@@ -103,4 +115,8 @@ Singleton {
     readonly property int dwellCritical: 12000
     readonly property real batLow: 0.2
     readonly property int ease: Easing.OutCubic
+
+    function url(path) {
+        return "file://" + path.split("/").map(encodeURIComponent).join("/")
+    }
 }

@@ -1,22 +1,13 @@
 import QtQuick
 import Quickshell
 
-Fade {
+Pick {
     id: root
-    property int sel: 0
-    property bool fast: false
-    property bool snap: false
-    property int start: 0
-    property real px: -1
-    property real py: -1
-    Timer {
-        id: snapRelease
-        interval: 0
-        onTriggered: root.snap = false
-    }
     readonly property var raw: find(input.text)
     property var results: raw
 
+    n: results.length
+    rows: Theme.rows
     width: Theme.launchW - 2 * Theme.lpad
     height: col.height
 
@@ -46,23 +37,12 @@ Fade {
     }
 
     function src(icon) {
-        return icon.startsWith("/") ? "file://" + icon : Quickshell.iconPath(icon, true)
-    }
-
-    function move(d, wrap) {
-        const n = results.length
-        if (!n) return
-        const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
-        snap = Math.abs(t - sel) > Theme.rows
-        sel = t
-        if (snap)
-            snapRelease.restart()
+        return icon.startsWith("/") ? Theme.url(icon) : Quickshell.iconPath(icon, true)
     }
 
     function clear() {
-        snap = true
+        hold()
         input.text = ""
-        snapRelease.restart()
     }
 
     function run() {
@@ -79,10 +59,7 @@ Fade {
         const r = results || []
         if (raw.length !== r.length || raw.some((a, i) => a !== r[i])) results = raw
     }
-    onSelChanged: {
-        if (sel < start) start = sel
-        else if (sel > start + Theme.rows - 1) start = sel - Theme.rows + 1
-    }
+
     onVisibleChanged: {
         if (visible) input.forceActiveFocus()
         else clear()
@@ -100,7 +77,7 @@ Fade {
     Column {
         id: col
         width: parent.width
-        spacing: 6
+        spacing: Theme.listGap
 
         Item {
             width: parent.width
@@ -146,7 +123,7 @@ Fade {
                 selectedTextColor: Theme.bg
                 selectByMouse: true
                 font.family: Theme.font
-                font.pixelSize: 13
+                font.pixelSize: Theme.fsL
                 font.weight: Font.Medium
                 clip: true
 
@@ -176,28 +153,22 @@ Fade {
                 text: "search"
                 visible: input.text === ""
                 opacity: 0.4
-                font.pixelSize: 13
+                font.pixelSize: Theme.fsL
             }
         }
 
-        Rectangle {
-            width: parent.width
-            height: 1
-            color: Theme.fg
-            opacity: 0.1
-            visible: root.results.length > 0
-        }
+        Rule { visible: root.n > 0 }
 
         Item {
             id: pane
             width: parent.width
             height: list.height
-            visible: root.results.length > 0
+            visible: root.n > 0
 
             ListView {
                 id: list
                 width: parent.width
-                height: Math.min(root.results.length, Theme.rows) * Theme.rowH
+                height: Math.min(root.n, Theme.rows) * Theme.rowH
                 clip: true
                 interactive: false
                 model: root.results
@@ -208,30 +179,13 @@ Fade {
 
                 Behavior on contentY {
                     enabled: !root.snap
-                    NumberAnimation { duration: root.fast ? Theme.fast : Theme.glide; easing.type: Theme.ease }
+                    NumberAnimation { duration: root.dur; easing.type: Theme.ease }
                 }
 
-                highlight: Rectangle {
-                    y: root.sel * Theme.rowH
+                highlight: Hi {
+                    pick: root
+                    row: Theme.rowH
                     width: list.width
-                    height: Theme.rowH
-                    radius: height / 2
-                    color: Theme.chip
-                    antialiasing: true
-
-                    Behavior on y {
-                        enabled: !root.snap
-                        NumberAnimation { duration: root.fast ? Theme.fast : Theme.glide; easing.type: Theme.ease }
-                    }
-
-                    Rectangle {
-                        x: 5
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 3
-                        height: 18
-                        radius: 1.5
-                        color: Theme.accent
-                    }
                 }
 
                 delegate: Item {
@@ -273,7 +227,7 @@ Fade {
                         anchors.left: tile.right
                         anchors.leftMargin: 10
                         anchors.right: parent.right
-                        anchors.rightMargin: 14
+                        anchors.rightMargin: Theme.rowR
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 1
 
@@ -292,20 +246,14 @@ Fade {
                             elide: Text.ElideRight
                             maximumLineCount: 1
                             opacity: 0.6
-                            font.pixelSize: 10
+                            font.pixelSize: Theme.fsXS
                         }
                     }
 
                     MouseArea {
                         anchors.fill: parent
                         hoverEnabled: true
-                        onPositionChanged: m => {
-                            const p = mapToItem(null, m.x, m.y)
-                            if (p.x === root.px && p.y === root.py) return
-                            root.px = p.x
-                            root.py = p.y
-                            root.sel = row.index
-                        }
+                        onPositionChanged: m => root.aim(mapToItem(null, m.x, m.y), row.index)
                         onClicked: {
                             root.sel = row.index
                             root.run()

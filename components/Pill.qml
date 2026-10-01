@@ -209,7 +209,7 @@ Item {
 
         Row {
             id: row
-            spacing: Theme.rowGap
+            spacing: 0
 
             Txt {
                 anchors.verticalCenter: parent.verticalCenter
