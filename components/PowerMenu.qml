@@ -76,11 +76,11 @@ Fade {
 
                 Behavior on color {
                     enabled: !root.snap
-                    ColorAnimation { duration: Theme.glide }
+                    ColorAnimation { duration: Theme.glide; easing.type: Theme.ease }
                 }
                 Behavior on ink {
                     enabled: !root.snap
-                    ColorAnimation { duration: Theme.glide }
+                    ColorAnimation { duration: Theme.glide; easing.type: Theme.ease }
                 }
 
                 Shape {

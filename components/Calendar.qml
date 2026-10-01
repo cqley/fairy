@@ -23,7 +23,7 @@ Fade {
     ParallelAnimation {
         id: settle
         NumberAnimation { target: grid; property: "y"; to: 0; duration: Theme.glide; easing.type: Theme.ease }
-        NumberAnimation { target: grid; property: "opacity"; to: 1; duration: Theme.glide }
+        NumberAnimation { target: grid; property: "opacity"; to: 1; duration: Theme.glide; easing.type: Theme.ease }
     }
 
     Column {
@@ -101,4 +101,3 @@ Fade {
         onStep: n => root.months += n
     }
 }
-

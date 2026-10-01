@@ -139,7 +139,7 @@ Fade {
                 Behavior on contentY {
                     enabled: !root.snap
                     NumberAnimation {
-                        duration: root.fast ? 60 : Theme.glide
+                        duration: root.fast ? Theme.fast : Theme.glide
                         easing.type: Theme.ease
                     }
                 }
@@ -155,7 +155,7 @@ Fade {
                     Behavior on y {
                         enabled: !root.snap
                         NumberAnimation {
-                            duration: root.fast ? 60 : Theme.glide
+                            duration: root.fast ? Theme.fast : Theme.glide
                             easing.type: Theme.ease
                         }
                     }
@@ -230,4 +230,3 @@ Fade {
         onStep: n => root.move(n, false)
     }
 }
-

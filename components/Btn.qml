@@ -13,7 +13,7 @@ Item {
     height: width
     opacity: !enabled ? 0.3 : solid || area.containsMouse ? 1 : 0.75
 
-    Behavior on opacity { NumberAnimation { duration: Theme.fade } }
+    Behavior on opacity { NumberAnimation { duration: Theme.fade; easing.type: Theme.ease } }
 
     Rectangle {
         anchors.fill: parent
@@ -50,4 +50,3 @@ Item {
         onClicked: root.clicked()
     }
 }
-

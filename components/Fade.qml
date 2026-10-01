@@ -3,13 +3,15 @@ import QtQuick
 Item {
     id: root
     property bool shown
+    property bool ready: true
+    readonly property bool active: root.shown && root.ready
 
     opacity: 0
     visible: opacity > 0
 
     states: State {
         name: "on"
-        when: root.shown
+        when: root.active
         PropertyChanges { root.opacity: 1 }
     }
 
@@ -18,7 +20,7 @@ Item {
             to: "on"
             SequentialAnimation {
                 PauseAnimation { duration: Theme.fade }
-                NumberAnimation { property: "opacity"; duration: Theme.speed; easing.type: Easing.InCubic }
+                NumberAnimation { property: "opacity"; duration: Theme.speed; easing.type: Theme.ease }
             }
         },
         Transition {
@@ -27,4 +29,3 @@ Item {
         }
     ]
 }
-

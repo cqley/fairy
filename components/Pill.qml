@@ -57,33 +57,37 @@ Item {
         precision: SystemClock.Minutes
     }
 
+    readonly property real targetW: Polkit.open ? Theme.authW
+        : root.alert ? Theme.noteW
+        : Launcher.open ? Theme.launchW
+        : Power.open ? Theme.powerW
+        : Wallpaper.open ? Theme.wallW
+        : Record.open ? Theme.recordW
+        : Net.open ? Theme.netW
+        : root.hot ? (root.media && !root.full ? Theme.mediaPillW : Theme.openW)
+        : Math.max(Theme.w, root.calm ? idle.width + Theme.pad : Theme.w)
+    readonly property real targetH: Polkit.open ? auth.y + auth.height + Theme.authPad
+        : root.alert ? Theme.noteH
+        : Launcher.open ? launch.y + launch.height + Theme.lpad
+        : Power.open ? power.y + power.height + Theme.pwPad
+        : Wallpaper.open ? wall.y + wall.height + Theme.wallPad
+        : Record.open ? rec.y + rec.height + Theme.recordPad
+        : Net.open ? net.y + net.height + Theme.netPad
+        : root.full ? cal.y + cal.height + Theme.pad
+        : root.hot ? (root.media ? tune.y + tune.height + Theme.pad : Theme.openH)
+        : Theme.h
+    readonly property bool resizing: Math.abs(root.wAnim - root.targetW) > 0.5 || Math.abs(root.hAnim - root.targetH) > 0.5
+
     Binding {
         target: root
         property: "wAnim"
-        value: Polkit.open ? Theme.authW
-            : root.alert ? Theme.noteW
-            : Launcher.open ? Theme.launchW
-            : Power.open ? Theme.powerW
-            : Wallpaper.open ? Theme.wallW
-            : Record.open ? Theme.recordW
-            : Net.open ? Theme.netW
-            : root.hot ? (root.media && !root.full ? Theme.mediaPillW : Theme.openW)
-            : Math.max(Theme.w, root.calm ? idle.width + Theme.pad : Theme.w)
+        value: root.targetW
     }
 
     Binding {
         target: root
         property: "hAnim"
-        value: Polkit.open ? auth.y + auth.height + Theme.authPad
-            : root.alert ? Theme.noteH
-            : Launcher.open ? launch.y + launch.height + Theme.lpad
-            : Power.open ? power.y + power.height + Theme.pwPad
-            : Wallpaper.open ? wall.y + wall.height + Theme.wallPad
-            : Record.open ? rec.y + rec.height + Theme.recordPad
-            : Net.open ? net.y + net.height + Theme.netPad
-            : root.full ? cal.y + cal.height + Theme.pad
-            : root.hot ? (root.media ? tune.y + tune.height + Theme.pad : Theme.openH)
-            : Theme.h
+        value: root.targetH
     }
 
     Behavior on wAnim {
@@ -178,6 +182,7 @@ Item {
             y: Theme.body
             now: clock.date
             shown: root.hot && !root.full && root.calm && !root.media
+            ready: !root.resizing
         }
 
         MediaPanel {
@@ -185,6 +190,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.body
             shown: root.hot && !root.full && root.calm && root.media
+            ready: !root.resizing
         }
 
         Calendar {
@@ -193,12 +199,14 @@ Item {
             y: Theme.body
             now: clock.date
             shown: root.hot && root.full && root.calm
+            ready: !root.resizing
         }
 
         Note {
             anchors.horizontalCenter: parent.horizontalCenter
             n: Notifs.current
             shown: root.alert
+            ready: !root.resizing
         }
 
         Launch {
@@ -206,6 +214,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.lpad
             shown: Launcher.open
+            ready: !root.resizing
         }
 
         PowerMenu {
@@ -213,6 +222,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.pwPad
             shown: Power.open
+            ready: !root.resizing
         }
 
         Wall {
@@ -220,6 +230,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.wallPad
             shown: Wallpaper.open
+            ready: !root.resizing
         }
 
         RecordMenu {
@@ -227,6 +238,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.recordPad
             shown: Record.open
+            ready: !root.resizing
         }
 
         NetMenu {
@@ -234,6 +246,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.netPad
             shown: Net.open
+            ready: !root.resizing
         }
 
         Auth {
@@ -241,6 +254,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.authPad
             shown: Polkit.open
+            ready: !root.resizing
         }
     }
 }

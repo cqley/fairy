@@ -68,7 +68,7 @@ Fade {
             snap = false
             return
         }
-        slide.duration = fast ? 60 : Theme.glide
+        slide.duration = fast ? Theme.fast : Theme.glide
         slide.to = x
         slide.start()
     }

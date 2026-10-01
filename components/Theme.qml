@@ -97,9 +97,9 @@ Singleton {
     readonly property int speed: 300
     readonly property int fade: 60
     readonly property int glide: 240
+    readonly property int fast: 60
     readonly property int dwell: 5000
     readonly property int dwellCritical: 12000
     readonly property real batLow: 0.2
     readonly property int ease: Easing.OutCubic
 }
-

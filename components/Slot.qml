@@ -11,12 +11,6 @@ Item {
     height: size
     clip: true
 
-    Behavior on width {
-        NumberAnimation {
-            duration: Theme.slide
-            easing.type: Theme.ease
-        }
-    }
 
     Item {
         id: holder
