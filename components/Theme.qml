@@ -8,6 +8,15 @@ Singleton {
     readonly property var terminal: ["sh", "-c", 'for t in "$TERMINAL" alacritty kitty foot ghostty wezterm xterm; do command -v "$t" >/dev/null 2>&1 || continue; case $t in kitty) exec kitty "$@";; wezterm) exec wezterm start -- "$@";; *) exec "$t" -e "$@";; esac; done', "sh"]
     readonly property string wallDir: "file:///home/cat/pictures/wallpapers"
     readonly property var wallCmd: ["colors"]
+    readonly property string recordDir: "/home/cat/videos/records"
+    readonly property string recordBin: ""
+    readonly property string recordBackend: ""
+    readonly property int recordFps: 60
+    readonly property int recordDot: 7
+    readonly property int recordW: 300
+    readonly property int recordPad: 12
+    readonly property int recordRowH: 34
+    readonly property int recordRows: 6
     readonly property color bg: "#000000"
     readonly property color fg: "#ffffff"
     readonly property color chip: "#1c1c1e"
