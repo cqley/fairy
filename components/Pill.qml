@@ -154,7 +154,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.lpad
             shown: Launcher.open
-            ready: !root.resizing
+            ready: true
         }
 
         PowerMenu {
