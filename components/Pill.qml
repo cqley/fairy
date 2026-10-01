@@ -66,6 +66,7 @@ Item {
         : Net.open ? Theme.netW
         : root.hot ? (root.media && !root.full ? Theme.mediaPillW : Theme.openW)
         : Math.max(Theme.w, root.calm ? idle.width + Theme.pad : Theme.w)
+
     readonly property real targetH: Polkit.open ? auth.y + auth.height + Theme.authPad
         : root.alert ? Theme.noteH
         : Launcher.open ? launch.y + launch.height + Theme.lpad
@@ -76,7 +77,9 @@ Item {
         : root.full ? cal.y + cal.height + Theme.pad
         : root.hot ? (root.media ? tune.y + tune.height + Theme.pad : Theme.openH)
         : Theme.h
-    readonly property bool resizing: Math.abs(root.wAnim - root.targetW) > 0.5 || Math.abs(root.hAnim - root.targetH) > 0.5
+
+    readonly property bool resizing: Math.abs(root.wAnim - root.targetW) > 0.5
+        || Math.abs(root.hAnim - root.targetH) > 0.5
 
     Binding {
         target: root
@@ -96,6 +99,7 @@ Item {
             easing.type: Theme.ease
         }
     }
+
     Behavior on hAnim {
         NumberAnimation {
             duration: Theme.speed
@@ -106,76 +110,11 @@ Item {
     ClippingRectangle {
         id: body
         y: Theme.gap
-        width: Math.round(root.wAnim)
-        height: Math.round(root.hAnim)
-        radius: Math.min(height / 2, Theme.radius)
+        width: root.wAnim
+        height: root.hAnim
+        radius: Math.min(Math.min(width, height) / 2, Theme.radius)
         antialiasing: true
         color: Theme.bg
-
-        Fade {
-            id: idle
-            anchors.horizontalCenter: parent.horizontalCenter
-            y: Math.round((Theme.h - height) / 2)
-            width: row.width
-            height: row.height
-            shown: root.calm
-
-            Row {
-                id: row
-                spacing: Theme.rowGap
-
-                Txt {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: Qt.formatDateTime(clock.date, "HH:mm")
-                    font.pixelSize: Theme.clockPx
-                }
-
-                Battery {
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                Slot {
-                    anchors.verticalCenter: parent.verticalCenter
-                    shown: Mic.muted
-                    onClicked: Mic.toggle()
-
-                    MicOff {}
-                }
-
-                Slot {
-                    anchors.verticalCenter: parent.verticalCenter
-                    size: Theme.recordDot
-                    shown: Record.active
-                    onClicked: Record.stop()
-
-                    Rectangle {
-                        property real pulse: 1
-                        anchors.fill: parent
-                        radius: width / 2
-                        color: Theme.red
-                        antialiasing: true
-                        opacity: Theme.dotLow + (1 - Theme.dotLow) * pulse
-
-                        SequentialAnimation on pulse {
-                            running: Record.active
-                            loops: Animation.Infinite
-                            NumberAnimation {
-                                from: 1
-                                to: 0
-                                duration: Theme.pulse
-                                easing.type: Easing.InOutSine
-                            }
-                            NumberAnimation {
-                                from: 0
-                                to: 1
-                                duration: Theme.pulse
-                                easing.type: Easing.InOutSine
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         Week {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -255,6 +194,74 @@ Item {
             y: Theme.authPad
             shown: Polkit.open
             ready: !root.resizing
+        }
+    }
+
+    Fade {
+        id: idle
+        x: Math.round((root.parent.width - width) / 2) - root.x
+        y: Theme.gap + Math.round((Theme.h - height) / 2)
+        width: row.width
+        height: row.height
+        shown: root.calm
+        z: 2
+
+        Row {
+            id: row
+            spacing: Theme.rowGap
+
+            Txt {
+                anchors.verticalCenter: parent.verticalCenter
+                text: Qt.formatDateTime(clock.date, "HH:mm")
+                font.pixelSize: Theme.clockPx
+            }
+
+            Battery {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Slot {
+                anchors.verticalCenter: parent.verticalCenter
+                shown: Mic.muted
+                onClicked: Mic.toggle()
+
+                MicOff {}
+            }
+
+            Slot {
+                anchors.verticalCenter: parent.verticalCenter
+                size: Theme.recordDot
+                shown: Record.active
+                onClicked: Record.stop()
+
+                Rectangle {
+                    property real pulse: 1
+                    anchors.fill: parent
+                    radius: width / 2
+                    color: Theme.red
+                    antialiasing: true
+                    opacity: Theme.dotLow + (1 - Theme.dotLow) * pulse
+
+                    SequentialAnimation on pulse {
+                        running: Record.active
+                        loops: Animation.Infinite
+
+                        NumberAnimation {
+                            from: 1
+                            to: 0
+                            duration: Theme.pulse
+                            easing.type: Easing.InOutSine
+                        }
+
+                        NumberAnimation {
+                            from: 0
+                            to: 1
+                            duration: Theme.pulse
+                            easing.type: Easing.InOutSine
+                        }
+                    }
+                }
+            }
         }
     }
 }

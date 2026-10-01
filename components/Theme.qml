@@ -80,6 +80,7 @@ Singleton {
     readonly property int timeH: 10
     readonly property int micS: 12
     readonly property int clockPx: 14
+    readonly property int batW: 30
     readonly property int rowGap: 8
     readonly property int slide: 220
     readonly property int pulse: 1400

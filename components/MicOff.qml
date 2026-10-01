@@ -6,7 +6,7 @@ Item {
 
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.u
+        y: parent.u - 1
         width: 5 * parent.u
         height: 7 * parent.u
         radius: width / 2
@@ -16,7 +16,7 @@ Item {
 
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 7 * parent.u
+        y: 7 * parent.u - 1
         width: 7 * parent.u
         height: 3 * parent.u
         radius: parent.u
@@ -28,7 +28,7 @@ Item {
 
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 10 * parent.u
+        y: 10 * parent.u - 1
         width: 1.5 * parent.u
         height: 2 * parent.u
         color: Theme.red
