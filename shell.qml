@@ -28,7 +28,7 @@ Variants {
 
         PanelWindow {
             id: win
-            readonly property bool modal: Launcher.open || Power.open || Wallpaper.open || Polkit.open || Record.open || Net.open
+            readonly property bool modal: Modal.any
             property var pillMask: Region { item: pill }
             property var openMask: Region { width: win.width; height: win.height }
 
@@ -52,11 +52,7 @@ Variants {
                         return
                     if (Polkit.open)
                         Polkit.cancel()
-                    Launcher.open = false
-                    Power.open = false
-                    Wallpaper.open = false
-                    Record.open = false
-                    Net.open = false
+                    Modal.close("")
                 }
             }
 

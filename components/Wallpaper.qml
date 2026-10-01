@@ -7,16 +7,8 @@ Singleton {
     id: root
     property bool open: false
 
-    onOpenChanged: if (open) {
-        if (Polkit.open) {
-            root.open = false
-            return
-        }
-        Launcher.open = false
-        Power.open = false
-        Record.open = false
-        Net.open = false
-    }
+    onOpenChanged: if (open)
+        Modal.claim("wallpaper")
 
     IpcHandler {
         target: "wallpaper"

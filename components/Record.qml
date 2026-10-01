@@ -24,15 +24,9 @@ Singleton {
     }
 
     onOpenChanged: if (open) {
-        if (Polkit.open) {
-            root.open = false
-            return
-        }
-        Launcher.open = false
-        Power.open = false
-        Wallpaper.open = false
-        Net.open = false
-        refresh()
+        Modal.claim("record")
+        if (open)
+            refresh()
     }
 
     function toggle() {

@@ -8,16 +8,8 @@ Singleton {
     property bool open: false
     property var counts: ({})
 
-    onOpenChanged: if (open) {
-        if (Polkit.open) {
-            root.open = false
-            return
-        }
-        Power.open = false
-        Wallpaper.open = false
-        Record.open = false
-        Net.open = false
-    }
+    onOpenChanged: if (open)
+        Modal.claim("launcher")
 
     function bump(id) {
         const c = Object.assign({}, counts)

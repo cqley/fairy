@@ -15,6 +15,8 @@ Singleton {
     property bool toggling: false
     property string pending: ""
     property string phase: ""
+    property string target: ""
+    property string secret: ""
 
     readonly property string title: {
         if (!enabled)
@@ -29,14 +31,9 @@ Singleton {
     }
 
     onOpenChanged: if (open) {
-        if (Polkit.open) {
-            root.open = false
+        Modal.claim("net")
+        if (!open)
             return
-        }
-        Launcher.open = false
-        Power.open = false
-        Wallpaper.open = false
-        Record.open = false
         asking = ""
         error = ""
         if (!busy) {
@@ -96,6 +93,9 @@ Singleton {
         pending = item.ssid
         phase = "connecting"
         asking = ""
+        target = item.ssid
+        secret = ""
+        up.stdinEnabled = false
         up.command = ["nmcli", "device", "wifi", "connect", item.ssid]
         up.running = true
     }
@@ -107,7 +107,10 @@ Singleton {
         busy = true
         pending = asking
         phase = "connecting"
-        up.command = ["nmcli", "device", "wifi", "connect", asking, "password", psk]
+        target = asking
+        secret = psk
+        up.stdinEnabled = true
+        up.command = ["nmcli", "--ask", "device", "wifi", "connect", asking]
         up.running = true
     }
 
@@ -125,6 +128,20 @@ Singleton {
         phase = ""
     }
 
+    function fields(line) {
+        const out = [""]
+        for (let i = 0; i < line.length; i++) {
+            const c = line[i]
+            if (c === "\\" && i + 1 < line.length)
+                out[out.length - 1] += line[++i]
+            else if (c === ":")
+                out.push("")
+            else
+                out[out.length - 1] += c
+        }
+        return out
+    }
+
     function parseWifi(text) {
         const rows = []
         const lines = text.trim().split("\n")
@@ -133,13 +150,13 @@ Singleton {
             const line = lines[i]
             if (line === "")
                 continue
-            const p = line.split(":")
+            const p = fields(line)
             if (p.length < 4)
                 continue
             const active = p[0] === "yes"
             const sig = parseInt(p[1]) || 0
             const ssid = p[2]
-            const sec = p.slice(3).join(":")
+            const sec = p[3]
             if (ssid === "" || ssid === "--")
                 continue
             if (active)
@@ -216,15 +233,18 @@ Singleton {
 
     Process {
         id: up
-        stdout: StdioCollector {
-            onStreamFinished: {}
+        onStarted: {
+            if (root.secret === "")
+                return
+            write(root.secret + "\n")
+            root.secret = ""
         }
         stderr: StdioCollector {
             onStreamFinished: {
                 const t = text.trim().toLowerCase()
                 if (t.indexOf("password") >= 0 || t.indexOf("secrets") >= 0 || t.indexOf("802-11-wireless-security") >= 0) {
-                    if (root.asking === "" && up.command.length >= 5)
-                        root.asking = up.command[4]
+                    if (root.asking === "")
+                        root.asking = root.target
                     root.error = ""
                     root.busy = false
                     root.phase = ""
@@ -243,8 +263,8 @@ Singleton {
                 root.refresh()
                 settle.restart()
             } else {
-                if (root.asking === "" && up.command.length >= 5 && root.error === "")
-                    root.asking = up.command[4]
+                if (root.asking === "" && root.error === "")
+                    root.asking = root.target
                 if (root.asking === "") {
                     root.phase = ""
                     root.pending = ""
@@ -262,6 +282,13 @@ Singleton {
             root.pending = ""
             root.refresh()
         }
+    }
+
+    Timer {
+        id: guard
+        interval: 30000
+        running: up.running && up.stdinEnabled
+        onTriggered: up.signal(15)
     }
 
     Timer {

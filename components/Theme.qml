@@ -78,6 +78,13 @@ Singleton {
     readonly property int barH: 3
     readonly property int timeH: 10
     readonly property int micS: 12
+    readonly property int clockPx: 14
+    readonly property int rowGap: 8
+    readonly property int slide: 220
+    readonly property int pulse: 1400
+    readonly property int slotHit: 6
+    readonly property real slotScale: 0.7
+    readonly property real dotLow: 0.65
 
     readonly property int cellW: 30
     readonly property int cellH: 24

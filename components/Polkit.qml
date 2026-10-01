@@ -10,13 +10,8 @@ Singleton {
     readonly property alias flow: agent.flow
     readonly property alias registered: agent.isRegistered
 
-    onOpenChanged: if (open) {
-        Launcher.open = false
-        Power.open = false
-        Wallpaper.open = false
-        Record.open = false
-        Net.open = false
-    }
+    onOpenChanged: if (open)
+        Modal.close("")
 
     function cancel() {
         if (flow) flow.cancelAuthenticationRequest()
