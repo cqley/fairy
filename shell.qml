@@ -48,8 +48,10 @@ Variants {
                 anchors.fill: parent
                 enabled: win.modal
                 onPressed: m => {
-                    if (pill.contains(mapToItem(pill, m.x, m.y))) return
-                    if (Polkit.open) Polkit.cancel()
+                    if (pill.contains(mapToItem(pill, m.x, m.y)))
+                        return
+                    if (Polkit.open)
+                        Polkit.cancel()
                     Launcher.open = false
                     Power.open = false
                     Wallpaper.open = false

@@ -13,10 +13,16 @@ Singleton {
     property var list: []
     property bool busy: false
     property bool toggling: false
+    property string pending: ""
+    property string phase: ""
 
     readonly property string title: {
         if (!enabled)
             return "wifi off"
+        if (phase === "connecting")
+            return "connecting…"
+        if (phase === "disconnecting")
+            return "disconnecting…"
         if (active !== "")
             return active
         return "network"
@@ -33,12 +39,20 @@ Singleton {
         Record.open = false
         asking = ""
         error = ""
+        if (!busy) {
+            pending = ""
+            phase = ""
+        }
         refresh()
         poll.restart()
     } else {
         poll.stop()
         asking = ""
         error = ""
+        if (!busy) {
+            pending = ""
+            phase = ""
+        }
     }
 
     function refresh() {
@@ -49,7 +63,7 @@ Singleton {
     }
 
     function toggleWifi() {
-        if (toggling)
+        if (toggling || busy)
             return
         const next = enabled ? "off" : "on"
         toggling = true
@@ -57,17 +71,21 @@ Singleton {
         if (!enabled) {
             list = []
             active = ""
+            pending = ""
+            phase = ""
         }
         radioSet.command = ["nmcli", "radio", "wifi", next]
         radioSet.running = true
     }
 
     function pick(item) {
-        if (!item || busy)
+        if (!item || busy || toggling)
             return
         error = ""
         if (item.active) {
             busy = true
+            pending = item.ssid
+            phase = "disconnecting"
             down.command = ["nmcli", "connection", "down", item.ssid]
             down.running = true
             return
@@ -75,6 +93,8 @@ Singleton {
         if (asking === item.ssid)
             return
         busy = true
+        pending = item.ssid
+        phase = "connecting"
         asking = ""
         up.command = ["nmcli", "device", "wifi", "connect", item.ssid]
         up.running = true
@@ -85,6 +105,8 @@ Singleton {
             return
         error = ""
         busy = true
+        pending = asking
+        phase = "connecting"
         up.command = ["nmcli", "device", "wifi", "connect", asking, "password", psk]
         up.running = true
     }
@@ -92,7 +114,15 @@ Singleton {
     function cancelAsk() {
         asking = ""
         error = ""
-        busy = false
+        if (!busy) {
+            pending = ""
+            phase = ""
+        }
+    }
+
+    function clearPhase() {
+        pending = ""
+        phase = ""
     }
 
     function parseWifi(text) {
@@ -124,6 +154,12 @@ Singleton {
             })
         }
         rows.sort((a, b) => {
+            if (root.pending !== "") {
+                const ap = a.ssid === root.pending
+                const bp = b.ssid === root.pending
+                if (ap !== bp)
+                    return ap ? -1 : 1
+            }
             if (a.active !== b.active)
                 return a.active ? -1 : 1
             return b.signal - a.signal
@@ -163,6 +199,8 @@ Singleton {
                 if (!root.enabled) {
                     root.list = []
                     root.active = ""
+                    root.pending = ""
+                    root.phase = ""
                 }
             }
         }
@@ -188,6 +226,8 @@ Singleton {
                     if (root.asking === "" && up.command.length >= 5)
                         root.asking = up.command[4]
                     root.error = ""
+                    root.busy = false
+                    root.phase = ""
                 } else if (t !== "") {
                     root.error = "failed"
                     root.asking = ""
@@ -199,10 +239,18 @@ Singleton {
             if (code === 0) {
                 root.asking = ""
                 root.error = ""
-            } else if (root.asking === "" && up.command.length >= 5) {
-                root.asking = up.command[4]
+                root.phase = ""
+                root.refresh()
+                settle.restart()
+            } else {
+                if (root.asking === "" && up.command.length >= 5 && root.error === "")
+                    root.asking = up.command[4]
+                if (root.asking === "") {
+                    root.phase = ""
+                    root.pending = ""
+                }
+                root.refresh()
             }
-            root.refresh()
         }
     }
 
@@ -210,13 +258,25 @@ Singleton {
         id: down
         onExited: code => {
             root.busy = false
+            root.phase = ""
+            root.pending = ""
+            root.refresh()
+        }
+    }
+
+    Timer {
+        id: settle
+        interval: 600
+        onTriggered: {
+            if (!root.busy)
+                root.clearPhase()
             root.refresh()
         }
     }
 
     Timer {
         id: poll
-        interval: 4000
+        interval: root.busy ? 1500 : 4000
         repeat: true
         onTriggered: root.refresh()
     }
@@ -227,6 +287,8 @@ Singleton {
         function status(): string {
             if (!root.enabled)
                 return "wifi off"
+            if (root.phase !== "")
+                return root.phase + " " + root.pending
             if (root.active !== "")
                 return "connected " + root.active
             return "idle"

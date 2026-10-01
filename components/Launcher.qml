@@ -17,6 +17,7 @@ Singleton {
         Wallpaper.open = false
         Record.open = false
         Net.open = false
+        Vpn.open = false
     }
 
     function bump(id) {

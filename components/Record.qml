@@ -32,6 +32,7 @@ Singleton {
         Power.open = false
         Wallpaper.open = false
         Net.open = false
+        Vpn.open = false
         refresh()
     }
 

@@ -16,6 +16,7 @@ Singleton {
         Power.open = false
         Record.open = false
         Net.open = false
+        Vpn.open = false
     }
 
     IpcHandler {

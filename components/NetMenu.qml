@@ -39,13 +39,27 @@ Fade {
             Net.submitPsk(pass.text)
             return
         }
-        if (!n)
+        if (!n || Net.busy)
             return
         Net.pick(items[sel])
     }
 
     function close() {
         Net.open = false
+    }
+
+    function statusOf(item) {
+        if (!item)
+            return ""
+        if (Net.pending === item.ssid) {
+            if (Net.phase === "connecting")
+                return "connecting"
+            if (Net.phase === "disconnecting")
+                return "disconnecting"
+        }
+        if (item.active)
+            return "connected"
+        return ""
     }
 
     onSelChanged: {
@@ -83,6 +97,16 @@ Fade {
             if (root.sel >= root.n)
                 root.sel = Math.max(0, root.n - 1)
         }
+        function onPendingChanged() {
+            if (Net.pending === "")
+                return
+            for (let i = 0; i < root.n; i++) {
+                if (root.items[i] && root.items[i].ssid === Net.pending) {
+                    root.sel = i
+                    break
+                }
+            }
+        }
     }
 
     Keys.onPressed: e => {
@@ -95,7 +119,7 @@ Fade {
             e.accepted = true
             return
         }
-        if (root.ask)
+        if (root.ask || Net.busy)
             return
         const w = !e.isAutoRepeat
         root.fast = e.isAutoRepeat
@@ -129,13 +153,49 @@ Fade {
             height: Theme.netRowH
 
             Txt {
+                id: title
                 anchors.left: parent.left
                 anchors.leftMargin: 4
                 anchors.verticalCenter: parent.verticalCenter
                 text: Net.title
                 font.pixelSize: 12
                 font.weight: Font.DemiBold
-                color: Net.enabled ? Theme.fg : Theme.red
+                color: !Net.enabled ? Theme.red : Net.phase !== "" ? Theme.accent : Theme.fg
+                opacity: pulse.running ? 0.55 + 0.45 * pulse.val : 1
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Theme.glide
+                        easing.type: Theme.ease
+                    }
+                }
+            }
+
+            QtObject {
+                id: pulse
+                property real val: 1
+                property bool running: Net.phase === "connecting" || Net.phase === "disconnecting"
+            }
+
+            SequentialAnimation {
+                running: pulse.running
+                loops: Animation.Infinite
+                NumberAnimation {
+                    target: pulse
+                    property: "val"
+                    from: 1
+                    to: 0
+                    duration: 700
+                    easing.type: Easing.InOutSine
+                }
+                NumberAnimation {
+                    target: pulse
+                    property: "val"
+                    from: 0
+                    to: 1
+                    duration: 700
+                    easing.type: Easing.InOutSine
+                }
             }
 
             Rectangle {
@@ -146,10 +206,18 @@ Fade {
                 height: 20
                 radius: 10
                 color: Net.enabled ? Theme.accent : Theme.tile
+                opacity: Net.busy ? 0.5 : 1
                 antialiasing: true
 
                 Behavior on color {
                     ColorAnimation {
+                        duration: Theme.glide
+                        easing.type: Theme.ease
+                    }
+                }
+
+                Behavior on opacity {
+                    NumberAnimation {
                         duration: Theme.glide
                         easing.type: Theme.ease
                     }
@@ -174,6 +242,7 @@ Fade {
 
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !Net.busy
                     cursorShape: Qt.PointingHandCursor
                     onClicked: Net.toggleWifi()
                 }
@@ -245,6 +314,8 @@ Fade {
                     required property var modelData
                     required property int index
                     readonly property bool on: modelData && modelData.active
+                    readonly property bool aimed: modelData && Net.pending === modelData.ssid
+                    readonly property string status: root.statusOf(modelData)
                     readonly property real sig: modelData ? modelData.signal : 0
                     readonly property bool locked: modelData && modelData.locked
 
@@ -268,8 +339,15 @@ Fade {
                         text: row.modelData ? row.modelData.ssid : ""
                         elide: Text.ElideRight
                         font.pixelSize: 13
-                        font.weight: row.on ? Font.DemiBold : Font.Normal
-                        color: row.on ? Theme.accent : Theme.fg
+                        font.weight: row.on || row.aimed ? Font.DemiBold : Font.Normal
+                        color: row.on || row.aimed ? Theme.accent : Theme.fg
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Theme.glide
+                                easing.type: Theme.ease
+                            }
+                        }
                     }
 
                     Row {
@@ -281,18 +359,32 @@ Fade {
 
                         Txt {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: row.on ? "connected" : ""
+                            text: row.status
                             font.pixelSize: 11
                             color: Theme.accent
-                            opacity: 0.55
+                            opacity: {
+                                if (row.status === "")
+                                    return 0
+                                if (row.aimed && Net.phase !== "")
+                                    return 0.5 + 0.5 * pulse.val
+                                return 0.55
+                            }
                             visible: text !== ""
+
+                            Behavior on opacity {
+                                enabled: row.status === "connected"
+                                NumberAnimation {
+                                    duration: Theme.glide
+                                    easing.type: Theme.ease
+                                }
+                            }
                         }
 
                         Item {
                             width: 14
                             height: 12
                             anchors.verticalCenter: parent.verticalCenter
-                            visible: row.locked
+                            visible: row.locked && row.status === ""
                             opacity: 0.55
 
                             Rectangle {
@@ -323,6 +415,14 @@ Fade {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 2
                             readonly property int level: Math.round(row.sig * 4)
+                            opacity: row.aimed && Net.phase !== "" ? 0.35 : 1
+
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: Theme.glide
+                                    easing.type: Theme.ease
+                                }
+                            }
 
                             Repeater {
                                 model: 4
@@ -342,7 +442,7 @@ Fade {
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: !root.ask
+                        enabled: !root.ask && !Net.busy
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onPositionChanged: m => {
@@ -460,7 +560,7 @@ Fade {
 
     Wheel {
         anchors.fill: parent
-        enabled: !root.ask
+        enabled: !root.ask && !Net.busy
         onStep: n => root.move(n, false)
     }
 }

@@ -77,6 +77,7 @@ Singleton {
     readonly property int playGlyph: 14
     readonly property int barH: 3
     readonly property int timeH: 10
+    readonly property int micS: 12
 
     readonly property int cellW: 30
     readonly property int cellH: 24

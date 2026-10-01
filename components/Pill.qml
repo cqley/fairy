@@ -39,8 +39,10 @@ Item {
 
     TapHandler {
         onTapped: {
-            if (root.alert) Notifs.dismiss()
-            else if (!root.modal && root.hot) root.full = !root.full
+            if (root.alert)
+                Notifs.dismiss()
+            else if (!root.modal && root.hot)
+                root.full = !root.full
         }
     }
 
@@ -50,25 +52,51 @@ Item {
         value: root.hot || root.modal
     }
 
-    SystemClock { id: clock; precision: SystemClock.Minutes }
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
+    }
 
     Binding {
         target: root
         property: "wAnim"
-        value: Polkit.open ? Theme.authW : root.alert ? Theme.noteW : Launcher.open ? Theme.launchW : Power.open ? Theme.powerW : Wallpaper.open ? Theme.wallW : Record.open ? Theme.recordW : Net.open ? Theme.netW : root.hot ? (root.media && !root.full ? Theme.mediaPillW : Theme.openW) : Math.max(Theme.w, root.calm ? idle.width + Theme.pad : Theme.w)
+        value: Polkit.open ? Theme.authW
+            : root.alert ? Theme.noteW
+            : Launcher.open ? Theme.launchW
+            : Power.open ? Theme.powerW
+            : Wallpaper.open ? Theme.wallW
+            : Record.open ? Theme.recordW
+            : Net.open ? Theme.netW
+            : root.hot ? (root.media && !root.full ? Theme.mediaPillW : Theme.openW)
+            : Math.max(Theme.w, root.calm ? idle.width + Theme.pad : Theme.w)
     }
 
     Binding {
         target: root
         property: "hAnim"
-        value: Polkit.open ? auth.y + auth.height + Theme.authPad : root.alert ? Theme.noteH : Launcher.open ? launch.y + launch.height + Theme.lpad : Power.open ? power.y + power.height + Theme.pwPad : Wallpaper.open ? wall.y + wall.height + Theme.wallPad : Record.open ? rec.y + rec.height + Theme.recordPad : Net.open ? net.y + net.height + Theme.netPad : root.full ? cal.y + cal.height + Theme.pad : root.hot ? (root.media ? tune.y + tune.height + Theme.pad : Theme.openH) : Theme.h
+        value: Polkit.open ? auth.y + auth.height + Theme.authPad
+            : root.alert ? Theme.noteH
+            : Launcher.open ? launch.y + launch.height + Theme.lpad
+            : Power.open ? power.y + power.height + Theme.pwPad
+            : Wallpaper.open ? wall.y + wall.height + Theme.wallPad
+            : Record.open ? rec.y + rec.height + Theme.recordPad
+            : Net.open ? net.y + net.height + Theme.netPad
+            : root.full ? cal.y + cal.height + Theme.pad
+            : root.hot ? (root.media ? tune.y + tune.height + Theme.pad : Theme.openH)
+            : Theme.h
     }
 
     Behavior on wAnim {
-        NumberAnimation { duration: Theme.speed; easing.type: Theme.ease }
+        NumberAnimation {
+            duration: Theme.speed
+            easing.type: Theme.ease
+        }
     }
     Behavior on hAnim {
-        NumberAnimation { duration: Theme.speed; easing.type: Theme.ease }
+        NumberAnimation {
+            duration: Theme.speed
+            easing.type: Theme.ease
+        }
     }
 
     ClippingRectangle {
@@ -103,6 +131,85 @@ Item {
                 }
 
                 Item {
+                    id: micSlot
+                    width: Mic.muted ? Theme.micS : 0
+                    height: Theme.micS
+                    anchors.verticalCenter: parent.verticalCenter
+                    clip: true
+
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: 220
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+
+                    Item {
+                        anchors.centerIn: parent
+                        width: Theme.micS
+                        height: Theme.micS
+                        scale: 0.7 + 0.3 * enter
+                        opacity: enter
+                        property real enter: Mic.muted ? 1 : 0
+
+                        Behavior on enter {
+                            NumberAnimation {
+                                duration: 220
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+
+                        Rectangle {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 1
+                            width: 5
+                            height: 7
+                            radius: 2.5
+                            color: Theme.red
+                            antialiasing: true
+                        }
+
+                        Rectangle {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 7
+                            width: 7
+                            height: 3
+                            radius: 1
+                            color: "transparent"
+                            border.width: 1.2
+                            border.color: Theme.red
+                            antialiasing: true
+                        }
+
+                        Rectangle {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 10
+                            width: 1.5
+                            height: 2
+                            color: Theme.red
+                        }
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 12
+                            height: 1.5
+                            radius: 0.75
+                            rotation: 45
+                            color: Theme.red
+                            antialiasing: true
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: -6
+                        enabled: Mic.muted
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Mic.toggle()
+                    }
+                }
+
+                Item {
                     id: recSlot
                     width: Record.active ? Theme.recordDot : 0
                     height: Theme.recordDot
@@ -117,7 +224,6 @@ Item {
                     }
 
                     Rectangle {
-                        id: dot
                         anchors.centerIn: parent
                         width: Theme.recordDot
                         height: Theme.recordDot
@@ -139,8 +245,18 @@ Item {
                         SequentialAnimation on pulse {
                             running: Record.active
                             loops: Animation.Infinite
-                            NumberAnimation { from: 1; to: 0; duration: 1400; easing.type: Easing.InOutSine }
-                            NumberAnimation { from: 0; to: 1; duration: 1400; easing.type: Easing.InOutSine }
+                            NumberAnimation {
+                                from: 1
+                                to: 0
+                                duration: 1400
+                                easing.type: Easing.InOutSine
+                            }
+                            NumberAnimation {
+                                from: 0
+                                to: 1
+                                duration: 1400
+                                easing.type: Easing.InOutSine
+                            }
                         }
                     }
 
