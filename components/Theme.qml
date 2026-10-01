@@ -17,6 +17,11 @@ Singleton {
     readonly property int recordPad: 12
     readonly property int recordRowH: 34
     readonly property int recordRows: 6
+    readonly property int netW: 320
+    readonly property int netPad: 12
+    readonly property int netRowH: 36
+    readonly property int netRows: 6
+    readonly property int netFieldH: 34
     readonly property color bg: "#000000"
     readonly property color fg: "#ffffff"
     readonly property color chip: "#1c1c1e"
