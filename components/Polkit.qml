@@ -14,6 +14,7 @@ Singleton {
         Launcher.open = false
         Power.open = false
         Wallpaper.open = false
+        Record.open = false
     }
 
     function cancel() {

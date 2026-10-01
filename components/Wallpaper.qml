@@ -14,6 +14,7 @@ Singleton {
         }
         Launcher.open = false
         Power.open = false
+        Record.open = false
     }
 
     IpcHandler {

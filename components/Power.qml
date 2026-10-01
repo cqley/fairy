@@ -14,6 +14,7 @@ Singleton {
         }
         Launcher.open = false
         Wallpaper.open = false
+        Record.open = false
     }
 
     IpcHandler {

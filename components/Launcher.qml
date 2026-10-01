@@ -15,6 +15,7 @@ Singleton {
         }
         Power.open = false
         Wallpaper.open = false
+        Record.open = false
     }
 
     function bump(id) {

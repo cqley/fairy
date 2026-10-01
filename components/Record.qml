@@ -15,6 +15,8 @@ Singleton {
     property double startedAt: 0
     property int elapsedSec: 0
     property var items: []
+    property var pending: null
+    property bool intentional: false
     readonly property string clock: {
         const m = Math.floor(elapsedSec / 60)
         const s = elapsedSec % 60
@@ -39,6 +41,8 @@ Singleton {
     function stop() {
         if (!proc.running)
             return
+        intentional = true
+        pending = null
         proc.signal(2)
         settle.restart()
     }
@@ -64,17 +68,19 @@ Singleton {
             open = false
             return
         }
-        if (proc.running)
-            stop()
+        if (proc.running) {
+            pending = item
+            intentional = true
+            proc.signal(2)
+            settle.restart()
+            open = false
+            return
+        }
         start(item)
         open = false
     }
 
     function start(item) {
-        if (bin === "" && Theme.recordBin === "") {
-            lastError = "no recorder found"
-            return
-        }
         if (Theme.recordBin !== "") {
             bin = Theme.recordBin
             backend = Theme.recordBackend !== "" ? Theme.recordBackend : "custom"
@@ -84,6 +90,7 @@ Singleton {
             return
         }
         lastError = ""
+        intentional = false
         const stamp = Qt.formatDateTime(new Date(), "yyyyMMdd-HHmmss")
         const out = Theme.recordDir + "/rec-" + stamp + ".mp4"
         lastFile = out
@@ -158,8 +165,17 @@ Singleton {
     Process {
         id: proc
         onExited: (code, status) => {
-            if (code !== 0 && root.lastError === "")
+            settle.stop()
+            if (root.pending) {
+                const item = root.pending
+                root.pending = null
+                root.intentional = false
+                Qt.callLater(() => root.start(item))
+                return
+            }
+            if (code !== 0 && !root.intentional && root.lastError === "")
                 root.lastError = "exited " + code
+            root.intentional = false
         }
     }
 
@@ -173,7 +189,7 @@ Singleton {
 
     Timer {
         id: settle
-        interval: 800
+        interval: 1200
         onTriggered: {
             if (proc.running)
                 proc.running = false
@@ -197,6 +213,8 @@ Singleton {
         function status(): string {
             if (root.active)
                 return "recording " + root.backend + " " + root.clock + " " + root.targetLabel + " " + root.lastFile
+            if (root.pending)
+                return "switching"
             if (root.lastError !== "")
                 return "idle " + root.backend + " " + root.bin + " err:" + root.lastError
             return "idle " + (root.bin !== "" ? root.backend + " " + root.bin : "no-backend")

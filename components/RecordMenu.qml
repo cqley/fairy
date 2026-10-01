@@ -4,6 +4,7 @@ import Quickshell
 Fade {
     id: root
     property int sel: 0
+    property bool fast: false
     property bool snap: false
     property int start: 0
     property real px: -1
@@ -15,10 +16,10 @@ Fade {
     height: col.height
     focus: shown
 
-    function move(d) {
+    function move(d, wrap) {
         if (!n)
             return
-        const t = (sel + d + n) % n
+        const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
         snap = Math.abs(t - sel) > Theme.recordRows
         sel = t
         snap = false
@@ -67,23 +68,34 @@ Fade {
 
     Keys.onPressed: e => {
         const k = e.key
+        const w = !e.isAutoRepeat
+        root.fast = e.isAutoRepeat
         if (k === Qt.Key_Escape)
             Record.open = false
         else if (k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space)
             root.run()
         else if (k === Qt.Key_Down || k === Qt.Key_J || k === Qt.Key_Tab)
-            root.move(1)
+            root.move(1, w)
         else if (k === Qt.Key_Up || k === Qt.Key_K || k === Qt.Key_Backtab)
-            root.move(-1)
+            root.move(-1, w)
+        else if (k === Qt.Key_PageDown)
+            root.move(Theme.recordRows, false)
+        else if (k === Qt.Key_PageUp)
+            root.move(-Theme.recordRows, false)
         else
             return
         e.accepted = true
     }
 
+    Keys.onReleased: e => {
+        if (!e.isAutoRepeat)
+            root.fast = false
+    }
+
     Column {
         id: col
         width: parent.width
-        spacing: 8
+        spacing: 6
 
         Txt {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -93,50 +105,96 @@ Fade {
             color: Record.active ? Theme.red : Theme.fg
         }
 
-        Column {
+        Rectangle {
             width: parent.width
-            spacing: 2
+            height: 1
+            color: Theme.fg
+            opacity: 0.1
+            visible: root.n > 0
+        }
 
-            Repeater {
-                model: Math.min(Theme.recordRows, Math.max(0, root.n - root.start))
+        Item {
+            width: parent.width
+            height: list.height
+            visible: root.n > 0
 
-                Rectangle {
-                    id: row
-                    required property int index
-                    readonly property int realIndex: root.start + index
-                    readonly property var item: root.items[realIndex]
-                    readonly property bool on: root.sel === realIndex
-                    readonly property bool isStop: item && item.kind === "stop"
+            ListView {
+                id: list
+                width: parent.width
+                height: Math.min(root.n, Theme.recordRows) * Theme.recordRowH
+                clip: true
+                interactive: false
+                model: root.items
+                cacheBuffer: Theme.recordRowH * Theme.recordRows * 2
+                reuseItems: true
+                contentY: root.start * Theme.recordRowH
+                highlightFollowsCurrentItem: false
 
-                    width: parent.width
+                Behavior on contentY {
+                    enabled: !root.snap
+                    NumberAnimation {
+                        duration: root.fast ? 60 : Theme.glide
+                        easing.type: Theme.ease
+                    }
+                }
+
+                highlight: Rectangle {
+                    y: root.sel * Theme.recordRowH
+                    width: list.width
                     height: Theme.recordRowH
-                    radius: 10
-                    color: on ? Theme.tile : "transparent"
+                    radius: height / 2
+                    color: Theme.chip
                     antialiasing: true
 
-                    Behavior on color {
+                    Behavior on y {
                         enabled: !root.snap
-                        ColorAnimation { duration: Theme.fade }
+                        NumberAnimation {
+                            duration: root.fast ? 60 : Theme.glide
+                            easing.type: Theme.ease
+                        }
                     }
+
+                    Rectangle {
+                        x: 5
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 3
+                        height: 16
+                        radius: 1.5
+                        color: {
+                            const it = root.items[root.sel]
+                            return it && it.kind === "stop" ? Theme.red : Theme.accent
+                        }
+                    }
+                }
+
+                delegate: Item {
+                    id: row
+                    required property var modelData
+                    required property int index
+                    readonly property bool isStop: modelData && modelData.kind === "stop"
+
+                    width: list.width
+                    height: Theme.recordRowH
 
                     Txt {
                         anchors.left: parent.left
-                        anchors.leftMargin: 12
+                        anchors.leftMargin: 18
+                        anchors.right: parent.right
+                        anchors.rightMargin: 14
                         anchors.verticalCenter: parent.verticalCenter
-                        width: parent.width - 24
                         text: {
-                            if (!row.item)
+                            if (!row.modelData)
                                 return ""
-                            if (row.item.kind === "monitor")
-                                return row.item.label
-                            if (row.item.kind === "portal")
+                            if (row.modelData.kind === "monitor")
+                                return row.modelData.label
+                            if (row.modelData.kind === "portal")
                                 return "portal"
-                            return row.item.label
+                            return row.modelData.label
                         }
                         elide: Text.ElideRight
                         font.pixelSize: 13
+                        font.weight: Font.DemiBold
                         color: row.isStop ? Theme.red : Theme.fg
-                        opacity: row.on ? 1 : 0.7
                     }
 
                     MouseArea {
@@ -149,10 +207,10 @@ Fade {
                                 return
                             root.px = p.x
                             root.py = p.y
-                            root.sel = row.realIndex
+                            root.sel = row.index
                         }
                         onClicked: {
-                            root.sel = row.realIndex
+                            root.sel = row.index
                             root.run()
                         }
                     }
@@ -163,6 +221,6 @@ Fade {
 
     Wheel {
         anchors.fill: parent
-        onStep: n => root.move(n)
+        onStep: n => root.move(n, false)
     }
 }
