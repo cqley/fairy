@@ -73,7 +73,6 @@ Singleton {
         if (!enabled) {
             list = []
             active = ""
-            activeConnection = ""
             pending = ""
             phase = ""
         }
@@ -374,3 +373,4 @@ Singleton {
         }
     }
 }
+

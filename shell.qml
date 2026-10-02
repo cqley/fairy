@@ -45,18 +45,6 @@ Variants {
             mask: modal ? openMask : pillMask
             WlrLayershell.keyboardFocus: modal ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-            MouseArea {
-                anchors.fill: parent
-                enabled: win.modal
-                onPressed: m => {
-                    if (pill.hitTarget.contains(mapToItem(pill.hitTarget, m.x, m.y)))
-                        return
-                    if (Polkit.open)
-                        Polkit.cancel()
-                    Modal.close("")
-                }
-            }
-
             Pill { id: pill }
         }
     }

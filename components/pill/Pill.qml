@@ -54,6 +54,19 @@ Item {
 
     property alias hitTarget: body
 
+    TapHandler {
+        id: away
+        enabled: root.modal
+        onTapped: p => {
+            const point = root.hitTarget.mapFromItem(root, p.position)
+            if (root.hitTarget.contains(point))
+                return
+            if (Polkit.open)
+                Polkit.cancel()
+            Modal.close("")
+        }
+    }
+
     Binding {
         target: Notifs
         property: "hovered"
