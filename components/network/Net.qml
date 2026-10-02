@@ -18,6 +18,7 @@ Singleton {
     property string phase: ""
     property string target: ""
     property string secret: ""
+    property string activeConnection: ""
 
     readonly property string title: {
         if (!enabled)
@@ -55,9 +56,11 @@ Singleton {
     }
 
     function refresh() {
-        if (!toggling)
+        if (!toggling) {
             radio.running = true
-        if (enabled)
+            activeCon.running = true
+        }
+        if (enabled && !activeCon.running)
             scan.running = true
     }
 
@@ -70,6 +73,7 @@ Singleton {
         if (!enabled) {
             list = []
             active = ""
+            activeConnection = ""
             pending = ""
             phase = ""
         }
@@ -85,7 +89,7 @@ Singleton {
             busy = true
             pending = item.ssid
             phase = "disconnecting"
-            down.command = ["nmcli", "connection", "down", item.ssid]
+            down.command = ["nmcli", "connection", "down", "id", item.connection]
             down.running = true
             return
         }
@@ -187,6 +191,7 @@ Singleton {
                 ssid: ssid,
                 signal: Math.max(0, Math.min(100, sig)) / 100,
                 active: active,
+                connection: active ? root.activeConnection : ssid,
                 locked: locked,
                 security: sec
             })
@@ -220,7 +225,8 @@ Singleton {
         onExited: code => {
             root.toggling = false
             radio.running = true
-            if (root.enabled)
+            activeCon.running = true
+            if (root.enabled && !activeCon.running)
                 scan.running = true
         }
     }
@@ -237,9 +243,31 @@ Singleton {
                 if (!root.enabled) {
                     root.list = []
                     root.active = ""
+                    root.activeConnection = ""
                     root.pending = ""
                     root.phase = ""
                 }
+            }
+        }
+    }
+
+    Process {
+        id: activeCon
+        command: ["nmcli", "-t", "-f", "NAME,TYPE,DEVICE", "connection", "show", "--active"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const lines = text.trim().split("\n")
+                root.activeConnection = ""
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i] === "")
+                        continue
+                    const p = root.fields(lines[i])
+                    if (p.length < 3 || p[1] !== "802-11-wireless")
+                        continue
+                    root.activeConnection = p[0]
+                    break
+                }
+                scan.running = true
             }
         }
     }
@@ -346,4 +374,3 @@ Singleton {
         }
     }
 }
-

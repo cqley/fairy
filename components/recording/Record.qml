@@ -52,7 +52,8 @@ Singleton {
             const s = screens[i]
             list.push({ kind: "monitor", label: s.name, value: s.name })
         }
-        list.push({ kind: "portal", label: "portal", value: "portal" })
+        if (backend === "gsr")
+            list.push({ kind: "portal", label: "portal", value: "portal" })
         items = list
     }
 
@@ -79,10 +80,18 @@ Singleton {
     function start(item) {
         if (Theme.recordBin !== "") {
             bin = Theme.recordBin
-            backend = Theme.recordBackend !== "" ? Theme.recordBackend : "custom"
+            backend = Theme.recordBackend
         }
         if (bin === "") {
             lastError = "no recorder found"
+            return
+        }
+        if (backend !== "gsr" && backend !== "wf" && backend !== "wl") {
+            lastError = "recordBackend required"
+            return
+        }
+        if (item.kind === "portal" && backend !== "gsr") {
+            lastError = "portal requires gsr"
             return
         }
         lastError = ""
@@ -126,6 +135,8 @@ Singleton {
                 root.bin = root.backend !== "" ? t.slice(i + 1) : ""
                 if (root.backend === "")
                     root.lastError = "no recorder found"
+                if (root.open)
+                    root.refresh()
             }
         }
     }
@@ -168,7 +179,9 @@ Singleton {
         Quickshell.execDetached(["mkdir", "-p", Theme.recordDir])
         if (Theme.recordBin !== "") {
             root.bin = Theme.recordBin
-            root.backend = Theme.recordBackend !== "" ? Theme.recordBackend : "custom"
+            root.backend = Theme.recordBackend
+            if (root.backend !== "gsr" && root.backend !== "wf" && root.backend !== "wl")
+                root.lastError = "recordBackend required"
         } else {
             detect.running = true
         }
@@ -189,4 +202,3 @@ Singleton {
         }
     }
 }
-
