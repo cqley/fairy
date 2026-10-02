@@ -3,12 +3,15 @@ import QtQuick
 Item {
     id: root
     property bool shown
+    property bool ready: true
+    readonly property bool active: root.shown && root.ready
+
     opacity: 0
     visible: root.shown || opacity > 0
 
     states: State {
         name: "on"
-        when: root.shown
+        when: root.active
         PropertyChanges { root.opacity: 1 }
     }
 

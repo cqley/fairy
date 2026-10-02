@@ -142,6 +142,7 @@ Item {
             y: Theme.body
             now: clock.date
             shown: root.hot && !root.full && root.calm && !root.media
+            ready: !root.resizing
         }
 
         MediaPanel {
@@ -149,6 +150,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.body
             shown: root.hot && !root.full && root.calm && root.media
+            ready: !root.resizing
         }
 
         Calendar {
@@ -157,12 +159,14 @@ Item {
             y: Theme.body
             now: clock.date
             shown: root.hot && root.full && root.calm
+            ready: !root.resizing
         }
 
         Note {
             anchors.horizontalCenter: parent.horizontalCenter
             n: Notifs.current
             shown: root.alert
+            ready: !root.resizing
         }
 
         Launch {
@@ -170,6 +174,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.lpad
             shown: Launcher.open
+            ready: !root.resizing
         }
 
         PowerMenu {
@@ -177,6 +182,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.pwPad
             shown: Power.open
+            ready: !root.resizing
         }
 
         Wall {
@@ -184,6 +190,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.wallPad
             shown: Wallpaper.open
+            ready: !root.resizing
         }
 
         RecordMenu {
@@ -191,6 +198,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.recordPad
             shown: Record.open
+            ready: !root.resizing
         }
 
         NetMenu {
@@ -198,6 +206,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.netPad
             shown: Net.open
+            ready: !root.resizing
         }
 
         Auth {
@@ -205,6 +214,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: Theme.authPad
             shown: Polkit.open
+            ready: !root.resizing
         }
     }
 
