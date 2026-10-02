@@ -113,20 +113,15 @@ Item {
         }
     }
 
-    Item {
+    ClippingRectangle {
         id: body
         anchors.horizontalCenter: parent.horizontalCenter
         y: Theme.gap
         width: root.wAnim
         height: root.hAnim
-        clip: true
-
-        Rectangle {
-            anchors.fill: parent
-            radius: Math.min(Math.min(width, height) / 2, Theme.radius)
-            antialiasing: !root.resizing
-            color: Theme.bg
-        }
+        radius: Math.min(Math.min(width, height) / 2, Theme.radius)
+        antialiasing: true
+        color: Theme.bg
 
         HoverHandler {
             id: hover
