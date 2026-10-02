@@ -1,7 +1,8 @@
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
-import "components"
+import "components/core"
+import "components/pill"
 
 Variants {
     model: {
@@ -29,7 +30,7 @@ Variants {
         PanelWindow {
             id: win
             readonly property bool modal: Modal.any
-            property var pillMask: Region { item: pill }
+            property var pillMask: Region { item: pill.hitTarget }
             property var openMask: Region { width: win.width; height: win.height }
 
             screen: modelData
@@ -48,7 +49,7 @@ Variants {
                 anchors.fill: parent
                 enabled: win.modal
                 onPressed: m => {
-                    if (pill.contains(mapToItem(pill, m.x, m.y)))
+                    if (pill.hitTarget.contains(mapToItem(pill.hitTarget, m.x, m.y)))
                         return
                     if (Polkit.open)
                         Polkit.cancel()
