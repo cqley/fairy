@@ -99,10 +99,11 @@ Singleton {
     readonly property int batNubH: 5
     readonly property int batNubGap: 1
     readonly property int batGap: 8
+    readonly property int batIconW: batGap + batW + batNubGap + batNubW
     readonly property int batRadius: 4
     readonly property int batFillRadius: 3
-    readonly property int batBoltW: 6
-    readonly property int batBoltH: 8
+    readonly property int batBoltW: 5
+    readonly property int batBoltH: 7
     readonly property color batRed: "#ff3b30"
     readonly property color batYellow: "#ffcc00"
     readonly property color batGreen: "#34c759"

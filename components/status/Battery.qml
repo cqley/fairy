@@ -7,17 +7,19 @@ import Quickshell.Services.UPower
 
 Singleton {
     id: root
+
     property bool shown: true
+
     readonly property var device: UPower.displayDevice
+    readonly property bool available: device.ready && device.isLaptopBattery
     readonly property real pct: {
         const value = Number(device.percentage)
         return isFinite(value) ? Math.max(0, Math.min(1, value)) : 0
     }
-    readonly property color tone: pct <= Theme.batRedAt
+    readonly property color tone: root.pct <= Theme.batRedAt
         ? Theme.batRed
-        : pct <= Theme.batYellowAt ? Theme.batYellow : Theme.batGreen
-    readonly property bool available: device.ready && device.isLaptopBattery
-    readonly property bool pluggedIn: available && (
+        : root.pct <= Theme.batYellowAt ? Theme.batYellow : Theme.batGreen
+    readonly property bool pluggedIn: root.available && (
         device.state === UPowerDeviceState.PendingCharge ||
         device.state === UPowerDeviceState.Charging ||
         device.state === UPowerDeviceState.FullyCharged

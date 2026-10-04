@@ -4,15 +4,18 @@ import QtQuick.Shapes
 
 Item {
     id: root
+
     property bool shown: true
     property bool available: false
     property real pct: 0
     property color tone: Theme.batGreen
     property bool pluggedIn: false
 
-    width: shown && available ? Theme.batGap + Theme.batW + Theme.batNubGap + Theme.batNubW : 0
+    readonly property bool visibleState: root.shown && root.available
+
+    width: root.visibleState ? Theme.batIconW : 0
     height: Theme.batRowH
-    visible: shown && available
+    visible: root.visibleState
 
     Rectangle {
         id: body
@@ -26,7 +29,7 @@ Item {
         Rectangle {
             x: Theme.batBorder
             y: Theme.batBorder
-            width: Math.round((body.width - Theme.batBorder * 2) * root.pct)
+            width: root.pct > 0 ? Math.max(1, Math.round((body.width - Theme.batBorder * 2) * root.pct)) : 0
             height: body.height - Theme.batBorder * 2
             radius: Theme.batFillRadius
             color: root.tone
@@ -54,7 +57,7 @@ Item {
                     strokeWidth: 0
 
                     PathSvg {
-                        path: "M3.35 0L0.4 4.05H2.4L1.85 8L5.6 2.85H3.55L3.35 0Z"
+                        path: "M2.8 0L0.55 3.1H2.1L1.72 7L4.35 3.3H2.75L2.8 0Z"
                     }
                 }
             }
