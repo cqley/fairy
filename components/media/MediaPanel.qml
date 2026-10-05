@@ -13,6 +13,16 @@ Fade {
     property bool scrubbing: false
     property real scrub: 0
 
+    onPChanged: {
+        scrubbing = false
+        scrub = 0
+    }
+
+    onVisibleChanged: if (!visible) {
+        scrubbing = false
+        scrub = 0
+    }
+
     width: Theme.mediaW
     height: col.height
 

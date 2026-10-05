@@ -6,6 +6,8 @@ MouseArea {
 
     acceptedButtons: Qt.NoButton
 
+    onVisibleChanged: acc = 0
+
     onWheel: wheel => {
         acc += wheel.angleDelta.y
         const n = Math.trunc(acc / 120)

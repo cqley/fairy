@@ -251,7 +251,7 @@ Item {
 
         Row {
             id: row
-            width: Math.round(clockText.implicitWidth + battery.width + mic.width + record.width)
+            width: clockText.implicitWidth + battery.width + mic.width + record.width
             height: parent.height
             spacing: 0
 

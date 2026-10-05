@@ -206,7 +206,7 @@ Singleton {
                 return a.active ? -1 : 1
             return b.signal - a.signal
         })
-        const seen = {}
+        const seen = Object.create(null)
         const uniq = []
         for (let i = 0; i < rows.length; i++) {
             const r = rows[i]
@@ -225,8 +225,6 @@ Singleton {
             root.toggling = false
             radio.running = true
             activeCon.running = true
-            if (root.enabled && !activeCon.running)
-                scan.running = true
         }
     }
 
@@ -266,7 +264,8 @@ Singleton {
                     root.activeConnection = p[0]
                     break
                 }
-                scan.running = true
+                if (root.enabled)
+                    scan.running = true
             }
         }
     }
@@ -275,7 +274,14 @@ Singleton {
         id: scan
         command: ["nmcli", "-t", "-f", "ACTIVE,SIGNAL,SSID,SECURITY", "device", "wifi", "list"]
         stdout: StdioCollector {
-            onStreamFinished: root.parseWifi(text)
+            onStreamFinished: {
+                if (root.enabled)
+                    root.parseWifi(text)
+                else {
+                    root.list = []
+                    root.active = ""
+                }
+            }
         }
     }
 

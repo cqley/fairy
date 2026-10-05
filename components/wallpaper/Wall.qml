@@ -114,6 +114,11 @@ Fade {
             rebuild()
             forceActiveFocus()
             reset()
+        } else {
+            fast = false
+            snap = false
+            px = -1
+            py = -1
         }
     }
 

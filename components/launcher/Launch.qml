@@ -19,9 +19,9 @@ Pick {
     }
 
     function find(q) {
-        const s = q.trim().toLowerCase()
-        const c = a => Launcher.counts[a.id] || 0
-        const byName = (a, b) => a.name.localeCompare(b.name)
+        const s = String(q || "").trim().toLowerCase()
+        const c = a => Number(Launcher.counts[a.id]) || 0
+        const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""))
         const apps = DesktopEntries.applications.values.filter(a => !a.noDisplay)
         if (!s) {
             const top = apps.filter(a => c(a) > 0).sort((a, b) => c(b) - c(a) || byName(a, b)).slice(0, Theme.rows)
@@ -29,16 +29,21 @@ Pick {
         }
         const hits = []
         for (const a of apps) {
-            const n = a.name.toLowerCase()
+            const n = String(a.name || "").toLowerCase()
             const i = n.indexOf(s)
-            const k = i === 0 ? 0 : n.includes(" " + s) ? 1 : i > 0 ? 2 : (a.genericName + " " + a.keywords.join(" ")).toLowerCase().includes(s) ? 3 : fuzzy(n, s) ? 4 : -1
+            const generic = String(a.genericName || "")
+            const keywords = Array.from(a.keywords || [])
+            const k = i === 0 ? 0 : n.includes(" " + s) ? 1 : i > 0 ? 2 : (generic + " " + keywords.join(" ")).toLowerCase().includes(s) ? 3 : fuzzy(n, s) ? 4 : -1
             if (k >= 0) hits.push({ a, k })
         }
         return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || x.a.name.length - y.a.name.length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
     }
 
     function src(icon) {
-        return icon.startsWith("/") ? Theme.url(icon) : Quickshell.iconPath(icon, true)
+        const value = String(icon || "")
+        if (value === "")
+            return ""
+        return value.startsWith("/") || value.indexOf("://") >= 0 ? Theme.url(value) : Quickshell.iconPath(value, true)
     }
 
     function clear() {
@@ -50,7 +55,7 @@ Pick {
         const a = results[sel]
         if (!a) return
         Launcher.bump(a.id)
-        if (a.runInTerminal && a.command) Quickshell.execDetached({ command: Theme.terminal.concat(Array.from(a.command)), workingDirectory: a.workingDirectory })
+        if (a.runInTerminal && a.command && a.command.length) Quickshell.execDetached({ command: Theme.terminal.concat(Array.from(a.command)), workingDirectory: a.workingDirectory })
         else a.execute()
         Launcher.open = false
     }

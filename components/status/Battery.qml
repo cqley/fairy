@@ -65,7 +65,7 @@ Singleton {
         const previousConnection = root.lastPowerConnection
         const previousPercent = root.lastPercent
         const charging = root.isChargingState(powerState)
-        const reachedFull = percent >= 100 && !root.fullNotified && (
+        const reachedFull = !root.fullNotified && percent >= 100 && (
             previousConnection === "external" && previousPercent >= 0 && previousPercent < 100 && charging ||
             root.chargingSeen && root.isChargedState(powerState)
         )

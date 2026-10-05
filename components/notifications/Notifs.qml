@@ -18,8 +18,10 @@ Singleton {
     }
 
     function push(n) {
+        if (!n)
+            return
         n.tracked = true
-        queue = [...queue, n]
+        queue = [...queue, n].slice(-Theme.notificationQueueMax)
         if (current === null && !gap.running) pump()
     }
 
@@ -40,7 +42,7 @@ Singleton {
             urgency: NotificationUrgency.Normal,
             expireTimeout: 4,
             charging: charging
-        }]
+        }].slice(-Theme.notificationQueueMax)
         if (current === null && !gap.running) pump()
     }
 
@@ -101,9 +103,14 @@ Singleton {
     }
 
     Connections {
-        target: root.current && !root.current.system ? root.current : null
+        id: watched
+        property var item: root.current && !root.current.system ? root.current : null
+        target: item
         ignoreUnknownSignals: true
-        function onClosed() { root.next() }
+        function onClosed() {
+            if (root.current === item)
+                root.next()
+        }
     }
 
     NotificationServer {

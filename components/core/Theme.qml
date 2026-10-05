@@ -108,6 +108,7 @@ Singleton {
     readonly property int batNubW: 2
     readonly property int batNubH: 5
     readonly property int batNubGap: 1
+    readonly property color batNubColor: fg
     readonly property int batGap: 8
     readonly property int batIconW: batGap + batW + batNubGap + batNubW
     readonly property int batRadius: 4
@@ -122,6 +123,7 @@ Singleton {
     readonly property int noteBatNubW: 2
     readonly property int noteBatNubH: 4
     readonly property int noteBatGap: 1
+    readonly property color noteBatNubColor: fg
     readonly property int noteBatBorder: 1
     readonly property int noteBatRadius: 3
     readonly property int noteBatBoltW: 4
@@ -150,11 +152,15 @@ Singleton {
     readonly property int fast: 60
     readonly property int dwell: 5000
     readonly property int dwellCritical: 12000
+    readonly property int notificationQueueMax: 32
     readonly property real batRedAt: 0.15
     readonly property real batYellowAt: 0.25
     readonly property int ease: Easing.OutCubic
 
     function url(path) {
-        return "file://" + path.split("/").map(encodeURIComponent).join("/")
+        const value = String(path || "")
+        if (value === "" || /^[a-z][a-z0-9+.-]*:/i.test(value))
+            return value
+        return "file://" + value.split("/").map(encodeURIComponent).join("/")
     }
 }

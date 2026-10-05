@@ -30,9 +30,9 @@ Fade {
         const image = String(n.image || "")
         const icon = String(n.appIcon || "")
         source = !battery && image !== ""
-            ? image
+            ? Theme.url(image)
             : !battery && icon !== ""
-                ? icon.startsWith("/") ? Theme.url(icon) : Quickshell.iconPath(icon, true)
+                ? icon.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(icon) ? Theme.url(icon) : Quickshell.iconPath(icon, true)
                 : ""
     }
 
@@ -81,7 +81,7 @@ Fade {
                 width: Theme.noteBatNubW
                 height: Theme.noteBatNubH
                 radius: width / 2
-                color: Theme.batGreen
+                color: Theme.noteBatNubColor
                 antialiasing: true
             }
 

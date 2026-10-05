@@ -25,7 +25,7 @@ Fade {
     function move(d, wrap) {
         if (!n)
             return
-        const t = wrap ? (sel + d + n) % n : Math.max(0, Math.min(n - 1, sel + d))
+        const t = wrap ? ((sel + d) % n + n) % n : Math.max(0, Math.min(n - 1, sel + d))
         snap = Math.abs(t - sel) > rows
         sel = t
         if (snap)
@@ -43,7 +43,8 @@ Fade {
             return
         px = p.x
         py = p.y
-        sel = i
+        if (i >= 0 && i < n)
+            sel = i
     }
 
     function nav(e) {

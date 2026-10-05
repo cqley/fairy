@@ -10,7 +10,7 @@ Item {
     default property alias content: holder.data
     signal clicked
 
-    width: Math.round((size + Theme.rowGap) * enter)
+    width: (size + Theme.rowGap) * enter
     height: size
     visible: enter > 0
     clip: true

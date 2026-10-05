@@ -21,6 +21,8 @@ Fade {
     height: Theme.pwH
 
     function run(i) {
+        if (i < 0 || i >= items.length)
+            return
         Quickshell.execDetached(items[i].cmd)
         Power.open = false
     }

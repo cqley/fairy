@@ -15,7 +15,7 @@ Item {
     property real enter: root.active ? 1 : 0
     property real boltEnter: root.pluggedIn ? 1 : 0
 
-    width: root.enter > 0 ? Math.max(1, Math.round(Theme.batIconW * root.enter)) : 0
+    width: Theme.batIconW * root.enter
     height: Theme.batRowH
     visible: root.enter > 0
     clip: true
@@ -97,7 +97,7 @@ Item {
             width: Theme.batNubW
             height: Theme.batNubH
             radius: Theme.batNubW / 2
-            color: root.tone
+            color: Theme.batNubColor
             antialiasing: true
         }
     }
