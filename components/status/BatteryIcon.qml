@@ -43,9 +43,10 @@ Item {
 
         Rectangle {
             id: body
+            x: Theme.batGap
             width: Theme.batW
             height: Theme.batH
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
             radius: Theme.batRadius
             color: Theme.bg
             antialiasing: true

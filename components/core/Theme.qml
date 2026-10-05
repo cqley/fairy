@@ -110,7 +110,7 @@ Singleton {
     readonly property int batNubH: 5
     readonly property int batNubGap: 1
     readonly property color batNubColor: fg
-    readonly property int batGap: 8
+    readonly property int batGap: rowGap
     readonly property int batIconW: batGap + batW + batNubGap + batNubW
     readonly property int batRadius: 4
     readonly property int batFillRadius: 3
