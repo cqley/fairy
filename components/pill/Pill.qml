@@ -277,6 +277,7 @@ Item {
                 pct: Battery.pct
                 tone: Battery.tone
                 pluggedIn: Battery.pluggedIn
+                leadingGap: Theme.clockGap
 
                 transform: Translate {
                     x: Theme.batteryOffsetX
@@ -288,6 +289,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: Theme.micOffsetY
                 shown: Mic.muted
+                leadingGap: battery.active ? Theme.rowGap : Theme.clockGap
                 onClicked: Mic.toggle()
 
                 transform: Translate {
@@ -303,6 +305,7 @@ Item {
                 anchors.verticalCenterOffset: Theme.recordOffsetY
                 size: Theme.recordDot
                 shown: Record.active
+                leadingGap: (battery.active || mic.shown) ? Theme.rowGap : Theme.clockGap
                 onClicked: Record.stop()
 
                 transform: Translate {

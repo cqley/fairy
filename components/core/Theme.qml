@@ -110,7 +110,7 @@ Singleton {
     readonly property int batNubH: 5
     readonly property int batNubGap: 1
     readonly property color batNubColor: fg
-    readonly property int batGap: rowGap
+    readonly property int batGap: clockGap
     readonly property int batIconW: batGap + batW + batNubGap + batNubW
     readonly property int batRadius: 4
     readonly property int batFillRadius: 3
@@ -132,6 +132,7 @@ Singleton {
     readonly property color batRed: "#ff3b30"
     readonly property color batYellow: "#ffcc00"
     readonly property color batGreen: "#34c759"
+    readonly property int clockGap: 4
     readonly property int rowGap: 8
     readonly property int idlePopDuration: speed
     readonly property int pulse: 1400

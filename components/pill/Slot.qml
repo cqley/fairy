@@ -5,12 +5,13 @@ Item {
     id: root
     property bool shown: false
     property int size: Theme.micS
-    readonly property int targetWidth: shown ? size + Theme.rowGap : 0
+    property int leadingGap: Theme.rowGap
+    readonly property int targetWidth: shown ? leadingGap + size : 0
     property real enter: shown ? 1 : 0
     default property alias content: holder.data
     signal clicked
 
-    width: (size + Theme.rowGap) * enter
+    width: (leadingGap + size) * enter
     height: size
     visible: enter > 0
     clip: true
@@ -24,7 +25,7 @@ Item {
 
     Item {
         id: holder
-        x: Theme.rowGap
+        x: root.leadingGap
         width: root.size
         height: root.size
         scale: Theme.slotScale + (1 - Theme.slotScale) * root.enter

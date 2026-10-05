@@ -10,12 +10,13 @@ Item {
     property real pct: 0
     property color tone: Theme.batGreen
     property bool pluggedIn: false
+    property int leadingGap: Theme.batGap
     readonly property bool active: root.shown && root.available
     readonly property int targetWidth: root.active ? Theme.batIconW : 0
     property real enter: root.active ? 1 : 0
     property real boltEnter: root.pluggedIn ? 1 : 0
 
-    width: Theme.batIconW * root.enter
+    width: (root.leadingGap + Theme.batW + Theme.batNubGap + Theme.batNubW) * root.enter
     height: Theme.batRowH
     visible: root.enter > 0
     clip: true
@@ -36,14 +37,14 @@ Item {
 
     Item {
         id: holder
-        width: Theme.batIconW
+        width: root.leadingGap + Theme.batW + Theme.batNubGap + Theme.batNubW
         height: Theme.batRowH
         scale: Theme.batPopScale + (1 - Theme.batPopScale) * root.enter
         opacity: root.enter
 
         Rectangle {
             id: body
-            x: Theme.batGap
+            x: root.leadingGap
             width: Theme.batW
             height: Theme.batH
             anchors.verticalCenter: parent.verticalCenter
