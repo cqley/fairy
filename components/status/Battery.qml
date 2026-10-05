@@ -24,10 +24,11 @@ Singleton {
     readonly property color tone: root.pct <= Theme.batRedAt
         ? Theme.batRed
         : root.pct <= Theme.batYellowAt ? Theme.batYellow : Theme.batGreen
-    readonly property string powerConnection: {
-        if (!root.available)
-            return ""
-        switch (root.device.state) {
+    readonly property string powerConnection: root.connectionForState(root.available ? root.device.state : null)
+    readonly property bool pluggedIn: root.powerConnection === "external"
+
+    function connectionForState(state) {
+        switch (state) {
         case UPowerDeviceState.PendingCharge:
         case UPowerDeviceState.Charging:
         case UPowerDeviceState.FullyCharged:
@@ -40,24 +41,17 @@ Singleton {
             return ""
         }
     }
-    readonly property bool pluggedIn: root.powerConnection === "external"
 
     function syncPowerConnection() {
         const state = root.powerConnection
-        if (state === "") {
-            root.lastPowerConnection = ""
-            return
-        }
-
-        if (root.lastPowerConnection === "") {
-            root.lastPowerConnection = state
-            return
-        }
-
-        if (root.lastPowerConnection === state)
+        if (state === "" || state === root.lastPowerConnection)
             return
 
+        const previous = root.lastPowerConnection
         root.lastPowerConnection = state
+        if (previous === "")
+            return
+
         Notifs.pushSystem(
             state === "external" ? "charger connected" : "charger disconnected",
             state === "external"
@@ -65,7 +59,6 @@ Singleton {
                     ? `battery full · ${root.percent}%`
                     : `battery charging · ${root.percent}%`
                 : `running on battery · ${root.percent}%`,
-            root.pct,
             state === "external"
         )
     }

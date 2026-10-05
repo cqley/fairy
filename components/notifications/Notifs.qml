@@ -23,7 +23,7 @@ Singleton {
         if (current === null && !gap.running) pump()
     }
 
-    function pushSystem(summary, body, batteryPct, charging) {
+    function pushSystem(summary, body, charging) {
         const duplicate = (current && current.system && current.kind === "battery" && current.summary === summary) ||
             queue.some(n => n && n.system && n.kind === "battery" && n.summary === summary)
         if (duplicate)
@@ -39,7 +39,6 @@ Singleton {
             image: "",
             urgency: NotificationUrgency.Normal,
             expireTimeout: 4,
-            batteryPct: batteryPct,
             charging: charging
         }]
         if (current === null && !gap.running) pump()

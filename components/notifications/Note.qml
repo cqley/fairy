@@ -15,7 +15,6 @@ Fade {
     property bool critical
     property bool battery
     property bool charging
-    property real batteryPct
 
     width: Theme.noteW
     height: Theme.noteH
@@ -28,7 +27,6 @@ Fade {
         critical = n.urgency === NotificationUrgency.Critical
         battery = !!n.system && n.kind === "battery"
         charging = battery && !!n.charging
-        batteryPct = battery ? Math.max(0, Math.min(1, Number(n.batteryPct) || 0)) : 0
         const image = String(n.image || "")
         const icon = String(n.appIcon || "")
         source = !battery && image !== ""
@@ -70,23 +68,10 @@ Fade {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 radius: Theme.noteBatRadius
-                color: Theme.bg
+                color: Theme.batGreen
                 border.color: Theme.fg
                 border.width: Theme.noteBatBorder
                 antialiasing: true
-
-                Rectangle {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    x: Theme.noteBatBorder
-                    width: batteryBody.width > Theme.noteBatBorder * 2 ? Math.round((batteryBody.width - Theme.noteBatBorder * 2) * root.batteryPct) : 0
-                    height: batteryBody.height - Theme.noteBatBorder * 2
-                    radius: Theme.noteBatFillRadius
-                    color: root.batteryPct <= Theme.batRedAt
-                        ? Theme.batRed
-                        : root.batteryPct <= Theme.batYellowAt ? Theme.batYellow : Theme.batGreen
-                    opacity: root.batteryPct > 0 ? 1 : 0
-                }
             }
 
             Rectangle {
@@ -96,7 +81,7 @@ Fade {
                 width: Theme.noteBatNubW
                 height: Theme.noteBatNubH
                 radius: width / 2
-                color: Theme.fg
+                color: Theme.batGreen
                 antialiasing: true
             }
 
@@ -113,7 +98,7 @@ Fade {
                     strokeWidth: 0
 
                     PathSvg {
-                        path: "M2.8 0L0.55 3.1H2.1L1.72 7L4.35 3.3H2.75L2.8 0Z"
+                        path: "M2.25 0L0.45 2.65H1.72L1.45 6L3.6 3.05H2.2L2.25 0Z"
                     }
                 }
             }
