@@ -93,6 +93,7 @@ Singleton {
     readonly property int clockPx: 14
     readonly property int idleOffsetX: 0
     readonly property int idleOffsetY: 0
+    readonly property int idleTopOffsetY: 0
     readonly property int clockOffsetX: 0
     readonly property int clockOffsetY: 0
     readonly property int batteryOffsetX: 0

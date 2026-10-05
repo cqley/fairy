@@ -238,7 +238,8 @@ Item {
     Fade {
         id: idle
         anchors.horizontalCenter: body.horizontalCenter
-        anchors.verticalCenter: body.verticalCenter
+        anchors.top: body.top
+        anchors.topMargin: Theme.idleTopOffsetY
         width: row.width
         height: Theme.h
         shown: root.calm
