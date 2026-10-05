@@ -104,6 +104,16 @@ Singleton {
     readonly property int batFillRadius: 3
     readonly property int batBoltW: 5
     readonly property int batBoltH: 7
+    readonly property int noteBatW: 14
+    readonly property int noteBatH: 8
+    readonly property int noteBatNubW: 1
+    readonly property int noteBatNubH: 3
+    readonly property int noteBatGap: 1
+    readonly property int noteBatBorder: 1
+    readonly property int noteBatRadius: 2
+    readonly property int noteBatFillRadius: 1
+    readonly property int noteBatBoltW: 5
+    readonly property int noteBatBoltH: 7
     readonly property color batRed: "#ff3b30"
     readonly property color batYellow: "#ffcc00"
     readonly property color batGreen: "#34c759"

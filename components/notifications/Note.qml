@@ -1,5 +1,6 @@
 import "../core"
 import QtQuick
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Services.Notifications
 import Quickshell.Widgets
@@ -12,17 +13,29 @@ Fade {
     property string letter
     property string source
     property bool critical
+    property bool battery
+    property bool charging
+    property real batteryPct
 
     width: Theme.noteW
     height: Theme.noteH
 
     onNChanged: {
         if (!n) return
-        summary = n.summary
-        body = n.body.replace(/^\s*<a[^>]*>.*?<\/a>\s*/, "").replace(/<[^>]*>/g, "")
-        letter = (n.appName || "?")[0].toLowerCase()
+        summary = String(n.summary || "")
+        body = String(n.body || "").replace(/^\s*<a[^>]*>.*?<\/a>\s*/, "").replace(/<[^>]*>/g, "")
+        letter = ((n.appName || "?")[0] || "?").toLowerCase()
         critical = n.urgency === NotificationUrgency.Critical
-        source = n.image !== "" ? n.image : n.appIcon.startsWith("/") ? Theme.url(n.appIcon) : Quickshell.iconPath(n.appIcon, true)
+        battery = !!n.system && n.kind === "battery"
+        charging = battery && !!n.charging
+        batteryPct = battery ? Math.max(0, Math.min(1, Number(n.batteryPct) || 0)) : 0
+        const image = String(n.image || "")
+        const icon = String(n.appIcon || "")
+        source = !battery && image !== ""
+            ? image
+            : !battery && icon !== ""
+                ? icon.startsWith("/") ? Theme.url(icon) : Quickshell.iconPath(icon, true)
+                : ""
     }
 
     ClippingRectangle {
@@ -41,13 +54,75 @@ Fade {
             asynchronous: true
             fillMode: Image.PreserveAspectCrop
             sourceSize: Qt.size(56, 56)
-            visible: status === Image.Ready
+            visible: root.source !== "" && status === Image.Ready
+        }
+
+        Item {
+            anchors.centerIn: parent
+            width: Theme.noteBatW
+            height: Theme.noteBatH
+            visible: root.battery
+
+            Rectangle {
+                id: batteryBody
+                width: Theme.noteBatW - Theme.noteBatNubW - Theme.noteBatGap
+                height: Theme.noteBatH
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                radius: Theme.noteBatRadius
+                color: Theme.bg
+                border.color: Theme.fg
+                border.width: Theme.noteBatBorder
+                antialiasing: true
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: Theme.noteBatBorder
+                    width: batteryBody.width > Theme.noteBatBorder * 2 ? Math.round((batteryBody.width - Theme.noteBatBorder * 2) * root.batteryPct) : 0
+                    height: batteryBody.height - Theme.noteBatBorder * 2
+                    radius: Theme.noteBatFillRadius
+                    color: root.batteryPct <= Theme.batRedAt
+                        ? Theme.batRed
+                        : root.batteryPct <= Theme.batYellowAt ? Theme.batYellow : Theme.batGreen
+                    opacity: root.batteryPct > 0 ? 1 : 0
+                }
+            }
+
+            Rectangle {
+                anchors.left: batteryBody.right
+                anchors.leftMargin: Theme.noteBatGap
+                anchors.verticalCenter: batteryBody.verticalCenter
+                width: Theme.noteBatNubW
+                height: Theme.noteBatNubH
+                radius: width / 2
+                color: Theme.fg
+                antialiasing: true
+            }
+
+            Shape {
+                anchors.centerIn: batteryBody
+                width: Theme.noteBatBoltW
+                height: Theme.noteBatBoltH
+                visible: root.charging
+                preferredRendererType: Shape.CurveRenderer
+
+                ShapePath {
+                    fillColor: Theme.fg
+                    strokeColor: "transparent"
+                    strokeWidth: 0
+
+                    PathSvg {
+                        path: "M2.8 0L0.55 3.1H2.1L1.72 7L4.35 3.3H2.75L2.8 0Z"
+                    }
+                }
+            }
         }
 
         Txt {
             anchors.centerIn: parent
             text: root.letter
-            visible: img.status !== Image.Ready
+            visible: !root.battery && img.status !== Image.Ready
             font.pixelSize: 12
             font.weight: Font.Bold
         }
@@ -81,4 +156,3 @@ Fade {
         }
     }
 }
-

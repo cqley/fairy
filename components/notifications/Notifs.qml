@@ -23,6 +23,28 @@ Singleton {
         if (current === null && !gap.running) pump()
     }
 
+    function pushSystem(summary, body, batteryPct, charging) {
+        const duplicate = (current && current.system && current.kind === "battery" && current.summary === summary) ||
+            queue.some(n => n && n.system && n.kind === "battery" && n.summary === summary)
+        if (duplicate)
+            return
+
+        queue = [...queue, {
+            system: true,
+            kind: "battery",
+            summary: summary,
+            body: body,
+            appName: "fairy",
+            appIcon: "",
+            image: "",
+            urgency: NotificationUrgency.Normal,
+            expireTimeout: 4,
+            batteryPct: batteryPct,
+            charging: charging
+        }]
+        if (current === null && !gap.running) pump()
+    }
+
     function pump() {
         const q = queue.filter(n => n)
         queue = q.slice(1)
@@ -45,19 +67,21 @@ Singleton {
         const n = current
         if (!n) return
         next()
-        n.dismiss()
+        if (!n.system)
+            n.dismiss()
     }
 
     function drop() {
         const n = current
         if (!n) return
         next()
-        n.expire()
+        if (!n.system)
+            n.expire()
     }
 
     function span(n) {
-        const t = n.expireTimeout * 1000
-        if (t > 0) return Math.min(Math.max(t, 3000), 15000)
+        const t = Number(n.expireTimeout) * 1000
+        if (isFinite(t) && t > 0) return Math.min(Math.max(t, 3000), 15000)
         return n.urgency === NotificationUrgency.Critical ? Theme.dwellCritical : Theme.dwell
     }
 
@@ -78,7 +102,7 @@ Singleton {
     }
 
     Connections {
-        target: root.current
+        target: root.current && !root.current.system ? root.current : null
         ignoreUnknownSignals: true
         function onClosed() { root.next() }
     }
