@@ -5,6 +5,7 @@ Item {
     id: root
     property bool shown: false
     property int size: Theme.micS
+    readonly property int targetWidth: shown ? size + Theme.rowGap : 0
     property real enter: shown ? 1 : 0
     default property alias content: holder.data
     signal clicked
@@ -16,7 +17,7 @@ Item {
 
     Behavior on enter {
         NumberAnimation {
-            duration: Theme.slide
+            duration: Theme.idlePopDuration
             easing.type: Theme.ease
         }
     }

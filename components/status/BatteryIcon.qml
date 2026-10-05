@@ -11,6 +11,7 @@ Item {
     property color tone: Theme.batGreen
     property bool pluggedIn: false
     readonly property bool active: root.shown && root.available
+    readonly property int targetWidth: root.active ? Theme.batIconW : 0
     property real enter: root.active ? 1 : 0
     property real boltEnter: root.pluggedIn ? 1 : 0
 
@@ -21,7 +22,7 @@ Item {
 
     Behavior on enter {
         NumberAnimation {
-            duration: Theme.batPopDuration
+            duration: Theme.idlePopDuration
             easing.type: Theme.ease
         }
     }

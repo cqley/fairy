@@ -91,6 +91,16 @@ Singleton {
     readonly property int barH: 3
     readonly property int micS: 12
     readonly property int clockPx: 14
+    readonly property int idleOffsetX: 0
+    readonly property int idleOffsetY: 0
+    readonly property int clockOffsetX: 0
+    readonly property int clockOffsetY: 0
+    readonly property int batteryOffsetX: 0
+    readonly property int batteryOffsetY: 0
+    readonly property int micOffsetX: 0
+    readonly property int micOffsetY: 0
+    readonly property int recordOffsetX: 0
+    readonly property int recordOffsetY: 0
     readonly property int batRowH: 16
     readonly property int batW: 21
     readonly property int batH: 11
@@ -105,7 +115,6 @@ Singleton {
     readonly property int batBoltW: 5
     readonly property int batBoltH: 7
     readonly property real batPopScale: slotScale
-    readonly property int batPopDuration: slide
     readonly property real batBoltScale: 0.75
     readonly property int batBoltDuration: 140
     readonly property int noteBatW: 16
@@ -121,7 +130,7 @@ Singleton {
     readonly property color batYellow: "#ffcc00"
     readonly property color batGreen: "#34c759"
     readonly property int rowGap: 8
-    readonly property int slide: 220
+    readonly property int idlePopDuration: speed
     readonly property int pulse: 1400
     readonly property int blink: 700
     readonly property int slotHit: 6

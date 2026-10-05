@@ -11,6 +11,9 @@ Singleton {
 
     property bool shown: true
     property string lastPowerConnection: ""
+    property int lastPercent: -1
+    property bool chargingSeen: false
+    property bool fullNotified: false
 
     readonly property var device: UPower.displayDevice
     readonly property bool available: !!device && device.ready && device.isLaptopBattery
@@ -25,7 +28,9 @@ Singleton {
         ? Theme.batRed
         : root.pct <= Theme.batYellowAt ? Theme.batYellow : Theme.batGreen
     readonly property string powerConnection: root.connectionForState(root.available ? root.device.state : null)
-    readonly property bool pluggedIn: root.powerConnection === "external"
+    readonly property string stablePowerConnection:
+        root.powerConnection !== "" ? root.powerConnection : root.lastPowerConnection
+    readonly property bool pluggedIn: root.stablePowerConnection === "external"
 
     function connectionForState(state) {
         switch (state) {
@@ -42,29 +47,65 @@ Singleton {
         }
     }
 
+    function isChargingState(state) {
+        return state === UPowerDeviceState.PendingCharge || state === UPowerDeviceState.Charging
+    }
+
+    function isChargedState(state) {
+        return state === UPowerDeviceState.FullyCharged
+    }
+
     function syncPowerConnection() {
-        const state = root.powerConnection
-        if (state === "" || state === root.lastPowerConnection)
+        if (!root.available)
             return
 
-        const previous = root.lastPowerConnection
-        root.lastPowerConnection = state
-        if (previous === "")
-            return
-
-        Notifs.pushSystem(
-            state === "external" ? "charger connected" : "charger disconnected",
-            state === "external"
-                ? root.device.state === UPowerDeviceState.FullyCharged
-                    ? `battery full · ${root.percent}%`
-                    : `battery charging · ${root.percent}%`
-                : `running on battery · ${root.percent}%`,
-            state === "external"
+        const connection = root.powerConnection
+        const powerState = root.device.state
+        const percent = root.percent
+        const previousConnection = root.lastPowerConnection
+        const previousPercent = root.lastPercent
+        const charging = root.isChargingState(powerState)
+        const reachedFull = percent >= 100 && !root.fullNotified && (
+            previousConnection === "external" && previousPercent >= 0 && previousPercent < 100 && charging ||
+            root.chargingSeen && root.isChargedState(powerState)
         )
+
+        if (connection !== "" && connection !== previousConnection) {
+            root.lastPowerConnection = connection
+            if (previousConnection !== "") {
+                Notifs.pushSystem(
+                    connection === "external" ? "charger connected" : "charger disconnected",
+                    connection === "external"
+                        ? root.isChargedState(powerState)
+                            ? `battery full · ${percent}%`
+                            : `battery charging · ${percent}%`
+                        : `running on battery · ${percent}%`,
+                    connection === "external"
+                )
+            }
+            if (connection === "battery") {
+                root.chargingSeen = false
+                root.fullNotified = false
+            }
+        }
+
+        if (charging)
+            root.chargingSeen = true
+
+        if (reachedFull) {
+            root.chargingSeen = false
+            root.fullNotified = true
+            Notifs.pushSystem("battery full", `charging complete · ${percent}%`, false)
+        }
+
+        root.lastPercent = percent
     }
 
     function resetPowerConnection() {
         root.lastPowerConnection = ""
+        root.lastPercent = -1
+        root.chargingSeen = false
+        root.fullNotified = false
         root.syncPowerConnection()
     }
 
@@ -78,8 +119,9 @@ Singleton {
     Connections {
         target: root.device
         function onReadyChanged() { root.syncPowerConnection() }
-        function onIsLaptopBatteryChanged() { root.syncPowerConnection() }
+        function onIsLaptopBatteryChanged() { root.resetPowerConnection() }
         function onStateChanged() { root.syncPowerConnection() }
+        function onPercentageChanged() { root.syncPowerConnection() }
     }
 
     IpcHandler {

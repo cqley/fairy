@@ -78,6 +78,10 @@ Item {
         precision: SystemClock.Minutes
     }
 
+    readonly property real idleTargetW: Math.max(
+        Theme.w,
+        Math.round(clockText.implicitWidth + battery.targetWidth + mic.targetWidth + record.targetWidth + Theme.pad)
+    )
     readonly property real targetW: Polkit.open ? Theme.authW
         : root.alert ? Theme.noteW
         : Launcher.open ? Theme.launchW
@@ -86,7 +90,7 @@ Item {
         : Record.open ? Theme.recordW
         : Net.open ? Theme.netW
         : root.hot ? (root.media && !root.full ? Theme.mediaPillW : Theme.openW)
-        : Math.max(Theme.w, root.calm ? idle.width + Theme.pad : Theme.w)
+        : root.calm ? root.idleTargetW : Theme.w
 
     readonly property real targetH: Polkit.open ? auth.y + auth.height + Theme.authPad
         : root.alert ? Theme.noteH
@@ -233,45 +237,76 @@ Item {
 
     Fade {
         id: idle
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: Theme.gap + Math.round((Theme.h - height) / 2)
+        anchors.horizontalCenter: body.horizontalCenter
+        anchors.verticalCenter: body.verticalCenter
         width: row.width
-        height: row.height
+        height: Theme.h
         shown: root.calm
         z: 2
 
+        transform: Translate {
+            x: Theme.idleOffsetX
+            y: Theme.idleOffsetY
+        }
+
         Row {
             id: row
+            width: Math.round(clockText.implicitWidth + battery.width + mic.width + record.width)
+            height: parent.height
             spacing: 0
 
             Txt {
+                id: clockText
                 anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: Theme.clockOffsetY
                 text: Qt.formatDateTime(clock.date, "HH:mm")
                 font.pixelSize: Theme.clockPx
+
+                transform: Translate {
+                    x: Theme.clockOffsetX
+                }
             }
 
             BatteryIcon {
+                id: battery
                 anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: Theme.batteryOffsetY
                 shown: Battery.shown
                 available: Battery.available
                 pct: Battery.pct
                 tone: Battery.tone
                 pluggedIn: Battery.pluggedIn
+
+                transform: Translate {
+                    x: Theme.batteryOffsetX
+                }
             }
 
             Slot {
+                id: mic
                 anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: Theme.micOffsetY
                 shown: Mic.muted
                 onClicked: Mic.toggle()
+
+                transform: Translate {
+                    x: Theme.micOffsetX
+                }
 
                 MicOff {}
             }
 
             Slot {
+                id: record
                 anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: Theme.recordOffsetY
                 size: Theme.recordDot
                 shown: Record.active
                 onClicked: Record.stop()
+
+                transform: Translate {
+                    x: Theme.recordOffsetX
+                }
 
                 Rectangle {
                     property real pulse: 1
