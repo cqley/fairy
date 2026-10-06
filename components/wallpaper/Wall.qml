@@ -192,9 +192,12 @@ Fade {
                             anchors.centerIn: parent
                             width: Theme.thumbW
                             height: Theme.thumbH
-                            scale: cell.on ? 1.08 : 1
-                            opacity: cell.on ? 1 : 0.7
+                            transformOrigin: Item.Center
+                            scale: cell.on ? 1.08 : area.pressed ? Theme.feedbackPressScale : area.containsMouse ? Theme.feedbackHoverScale : 1
+                            opacity: cell.on ? 1 : area.containsMouse ? 0.82 : 0.7
                             z: cell.on ? 1 : 0
+
+                            Behavior on opacity { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
 
                             Behavior on scale {
                                 enabled: !root.snap
@@ -232,6 +235,7 @@ Fade {
                         }
 
                         MouseArea {
+                            id: area
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor

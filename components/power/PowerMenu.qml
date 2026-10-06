@@ -78,6 +78,12 @@ Fade {
                 radius: Theme.radius - Theme.pwPad
                 antialiasing: true
                 color: on ? Theme.accent : Theme.chip
+                transformOrigin: Item.Center
+                scale: mouse.pressed ? Theme.feedbackPressScale : mouse.containsMouse ? Theme.feedbackHoverScale : 1
+
+                Behavior on scale {
+                    NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease }
+                }
 
                 Behavior on color {
                     enabled: !root.snap
@@ -115,6 +121,7 @@ Fade {
                 }
 
                 MouseArea {
+                    id: mouse
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor

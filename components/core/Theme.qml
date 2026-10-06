@@ -58,6 +58,33 @@ Singleton {
     readonly property int rowH: 38
     readonly property int rows: 5
     readonly property int searchH: 32
+    readonly property real launchSearchOpacity: 0.22
+    readonly property real launchSearchFocusOpacity: 0.42
+    readonly property int launchSearchIconX: 12
+    readonly property int launchSearchIconBox: 16
+    readonly property real launchSearchIconOpacity: 0.62
+    readonly property real launchSearchIconBorder: 1.3
+    readonly property int launchSearchLensInset: 1
+    readonly property int launchSearchLensSize: 10
+    readonly property int launchSearchHandleX: 9
+    readonly property int launchSearchHandleY: 9
+    readonly property int launchSearchHandleW: 5
+    readonly property real launchSearchHandleH: 1.3
+    readonly property int launchSearchTextX: 40
+    readonly property int launchSearchTextRight: 12
+    readonly property int launchIconX: 10
+    readonly property int launchIconBox: 24
+    readonly property int launchIconSize: 16
+    readonly property int launchIconSourceSize: 32
+    readonly property int launchIconRadius: 7
+    readonly property int launchIconBorderWidth: 1
+    readonly property real launchIconSelectedScale: 1.02
+    readonly property color launchIconFill: Qt.rgba(1, 1, 1, 0.04)
+    readonly property color launchIconSelectedFill: chip
+    readonly property color launchIconBorder: Qt.rgba(1, 1, 1, 0.16)
+    readonly property color launchIconHoverBorder: Qt.rgba(1, 1, 1, 0.34)
+    readonly property int launchTextGap: 10
+    readonly property int launchFallbackPx: 10
 
     readonly property int pwW: 68
     readonly property int pwH: 66
@@ -154,6 +181,12 @@ Singleton {
     readonly property int fade: 60
     readonly property int glide: 240
     readonly property int fast: 60
+    readonly property int feedbackDuration: 120
+    readonly property real feedbackHoverScale: 1.03
+    readonly property real feedbackPressScale: 0.97
+    readonly property real feedbackHoverFill: 0.06
+    readonly property real feedbackPressFill: 0.1
+    readonly property real feedbackFocusBorder: 1
     readonly property int dwell: 5000
     readonly property int dwellCritical: 12000
     readonly property int notificationQueueMax: 32

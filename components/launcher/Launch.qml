@@ -89,29 +89,41 @@ Pick {
             width: parent.width
             height: Theme.searchH
 
+            Rectangle {
+                anchors.fill: parent
+                radius: height / 2
+                color: Theme.chip
+                opacity: input.activeFocus ? Theme.launchSearchFocusOpacity : Theme.launchSearchOpacity
+                antialiasing: true
+
+                Behavior on opacity { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+            }
+
             Item {
-                x: 17
-                width: 14
-                height: 14
+                x: Theme.launchSearchIconX
+                width: Theme.launchSearchIconBox
+                height: Theme.launchSearchIconBox
                 anchors.verticalCenter: parent.verticalCenter
-                opacity: 0.6
+                opacity: Theme.launchSearchIconOpacity
 
                 Rectangle {
-                    width: 11
-                    height: 11
-                    radius: 5.5
+                    x: Theme.launchSearchLensInset
+                    y: Theme.launchSearchLensInset
+                    width: Theme.launchSearchLensSize
+                    height: Theme.launchSearchLensSize
+                    radius: width / 2
                     color: "transparent"
-                    border.width: 1.5
+                    border.width: Theme.launchSearchIconBorder
                     border.color: Theme.fg
                     antialiasing: true
                 }
 
                 Rectangle {
-                    x: 9.4
-                    y: 8.65
-                    width: 5
-                    height: 1.5
-                    radius: 0.75
+                    x: Theme.launchSearchHandleX
+                    y: Theme.launchSearchHandleY
+                    width: Theme.launchSearchHandleW
+                    height: Theme.launchSearchHandleH
+                    radius: height / 2
                     rotation: 45
                     transformOrigin: Item.Left
                     color: Theme.fg
@@ -121,8 +133,8 @@ Pick {
 
             TextInput {
                 id: input
-                x: 48
-                width: parent.width - 48 - 12
+                x: Theme.launchSearchTextX
+                width: parent.width - Theme.launchSearchTextX - Theme.launchSearchTextRight
                 anchors.verticalCenter: parent.verticalCenter
                 color: Theme.fg
                 selectionColor: Theme.accent
@@ -188,12 +200,6 @@ Pick {
                     NumberAnimation { duration: root.dur; easing.type: Theme.ease }
                 }
 
-                highlight: Hi {
-                    pick: root
-                    row: Theme.rowH
-                    width: list.width
-                }
-
                 delegate: Item {
                     id: row
                     required property var modelData
@@ -204,34 +210,48 @@ Pick {
 
                     Rectangle {
                         id: tile
-                        x: 10
+                        x: Theme.launchIconX
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 28
-                        height: 28
-                        radius: 8
-                        color: img.status === Image.Error || img.status === Image.Null ? Theme.tile : "transparent"
+                        width: Theme.launchIconBox
+                        height: Theme.launchIconBox
+                        radius: Theme.launchIconRadius
+                        color: selected ? Theme.launchIconSelectedFill : Theme.launchIconFill
+                        border.color: selected ? Theme.accent : area.containsMouse ? Theme.launchIconHoverBorder : Theme.launchIconBorder
+                        border.width: Theme.launchIconBorderWidth
+                        antialiasing: true
+                        transformOrigin: Item.Center
+                        scale: area.pressed ? Theme.feedbackPressScale : selected ? Theme.launchIconSelectedScale : area.containsMouse ? Theme.feedbackHoverScale : 1
+
+                        readonly property bool selected: root.sel === row.index
+
+                        Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+                        Behavior on color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+                        Behavior on border.color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
 
                         Image {
                             id: img
-                            anchors.fill: parent
+                            anchors.centerIn: parent
+                            width: Theme.launchIconSize
+                            height: Theme.launchIconSize
                             source: root.src(row.modelData.icon)
                             asynchronous: true
                             fillMode: Image.PreserveAspectFit
-                            sourceSize: Qt.size(56, 56)
+                            sourceSize: Qt.size(Theme.launchIconSourceSize, Theme.launchIconSourceSize)
                             visible: status === Image.Ready
                         }
 
                         Txt {
                             anchors.centerIn: parent
-                            text: (row.modelData.name || "?")[0].toLowerCase()
+                            text: String(row.modelData.name || "?").charAt(0).toLowerCase()
                             visible: img.status === Image.Error || img.status === Image.Null
+                            font.pixelSize: Theme.launchFallbackPx
                             font.weight: Font.Bold
                         }
                     }
 
                     Column {
                         anchors.left: tile.right
-                        anchors.leftMargin: 10
+                        anchors.leftMargin: Theme.launchTextGap
                         anchors.right: parent.right
                         anchors.rightMargin: Theme.rowR
                         anchors.verticalCenter: parent.verticalCenter
@@ -257,6 +277,7 @@ Pick {
                     }
 
                     MouseArea {
+                        id: area
                         anchors.fill: parent
                         hoverEnabled: true
                         onPositionChanged: m => root.aim(mapToItem(null, m.x, m.y), row.index)

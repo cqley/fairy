@@ -145,6 +145,7 @@ Fade {
 
             Rectangle {
                 id: bar
+                property bool hovered: seekArea.containsMouse
                 y: 4
                 width: parent.width
                 height: Theme.barH
@@ -160,7 +161,24 @@ Fade {
                     antialiasing: true
                 }
 
+                Rectangle {
+                    x: Math.max(0, Math.min(parent.width - width, parent.width * root.frac - width / 2))
+                    y: -2
+                    width: 7
+                    height: 7
+                    radius: width / 2
+                    color: Theme.accent
+                    transformOrigin: Item.Center
+                    scale: root.scrubbing ? 1.15 : bar.hovered ? 1 : 0
+                    opacity: root.scrubbing || bar.hovered ? 1 : 0
+                    antialiasing: true
+
+                    Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+                    Behavior on opacity { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+                }
+
                 MouseArea {
+                    id: seekArea
                     anchors.fill: parent
                     anchors.topMargin: -6
                     anchors.bottomMargin: -6

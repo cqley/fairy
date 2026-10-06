@@ -190,7 +190,13 @@ Fade {
                     width: Math.round(cancelTxt.width + 28)
                     height: Theme.authBtnH
                     radius: Theme.authBtnH / 2
-                    color: Theme.chip
+                    color: mouse.pressed ? Theme.tile : mouse.containsMouse ? Theme.tile : Theme.chip
+                    scale: mouse.pressed ? Theme.feedbackPressScale : mouse.containsMouse ? Theme.feedbackHoverScale : 1
+                    antialiasing: true
+                    transformOrigin: Item.Center
+
+                    Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+                    Behavior on color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
 
                     Txt {
                         id: cancelTxt
@@ -200,7 +206,9 @@ Fade {
                     }
 
                     MouseArea {
+                        id: mouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.cancel()
                     }
@@ -211,7 +219,13 @@ Fade {
                     height: Theme.authBtnH
                     radius: Theme.authBtnH / 2
                     color: Theme.accent
-                    opacity: input.text.length > 0 ? 1 : 0.45
+                    opacity: input.text.length > 0 ? (mouse2.pressed ? 0.82 : 1) : 0.45
+                    scale: input.text.length > 0 ? (mouse2.pressed ? Theme.feedbackPressScale : mouse2.containsMouse ? Theme.feedbackHoverScale : 1) : 1
+                    antialiasing: true
+                    transformOrigin: Item.Center
+
+                    Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+                    Behavior on opacity { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
 
                     Txt {
                         id: okTxt
@@ -223,8 +237,10 @@ Fade {
                     }
 
                     MouseArea {
+                        id: mouse2
                         anchors.fill: parent
                         enabled: input.text.length > 0
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.submit()
                     }

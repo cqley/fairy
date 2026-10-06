@@ -109,6 +109,10 @@ Pick {
                 color: !Net.enabled ? Theme.red : Net.phase !== "" ? Theme.accent : Theme.fg
                 opacity: pulse.running ? 0.55 + 0.45 * pulse.val : 1
 
+                Behavior on scale {
+                    NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease }
+                }
+
                 Behavior on color {
                     ColorAnimation {
                         duration: Theme.glide
@@ -157,6 +161,8 @@ Pick {
                 radius: height / 2
                 color: Net.enabled ? Theme.accent : Theme.tile
                 opacity: Net.busy ? 0.5 : 1
+                transformOrigin: Item.Center
+                scale: toggleArea.pressed ? Theme.feedbackPressScale : toggleArea.containsMouse ? Theme.feedbackHoverScale : 1
                 antialiasing: true
 
                 Behavior on color {
@@ -191,8 +197,10 @@ Pick {
                 }
 
                 MouseArea {
+                    id: toggleArea
                     anchors.fill: parent
                     enabled: !Net.busy
+                    hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: Net.toggleWifi()
                 }
@@ -365,7 +373,11 @@ Pick {
                 height: Theme.netFieldH
                 radius: height / 2
                 color: Theme.chip
+                border.color: Theme.accent
+                border.width: pass.activeFocus ? Theme.feedbackFocusBorder : 0
                 antialiasing: true
+
+                Behavior on border.width { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
 
                 TextInput {
                     id: pass

@@ -29,16 +29,19 @@ Item {
         width: root.size
         height: root.size
         anchors.verticalCenter: parent.verticalCenter
-        scale: Theme.slotScale + (1 - Theme.slotScale) * root.enter
+        transformOrigin: Item.Center
+        scale: (Theme.slotScale + (1 - Theme.slotScale) * root.enter) * (area.pressed ? Theme.feedbackPressScale : area.containsMouse ? Theme.feedbackHoverScale : 1)
         opacity: root.enter
     }
 
     MouseArea {
+        id: area
         x: root.leadingGap - Theme.slotHit
         y: Math.round((root.height - root.size) / 2) - Theme.slotHit
         width: root.size + Theme.slotHit * 2
         height: root.size + Theme.slotHit * 2
         enabled: root.shown
+        hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
     }
