@@ -258,8 +258,11 @@ Item {
 
             Txt {
                 id: clockText
+                height: parent.height
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: Theme.clockOffsetY
+                anchors.alignWhenCentered: Theme.idleAlignWhenCentered
+                verticalAlignment: Text.AlignVCenter
                 text: Qt.formatDateTime(clock.date, "HH:mm")
                 font.pixelSize: Theme.clockPx
 
@@ -271,7 +274,8 @@ Item {
             BatteryIcon {
                 id: battery
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: Theme.batteryOffsetY
+                anchors.verticalCenterOffset: Theme.moduleOffsetY + Theme.batteryOffsetY
+                anchors.alignWhenCentered: Theme.idleAlignWhenCentered
                 shown: Battery.shown
                 available: Battery.available
                 pct: Battery.pct
@@ -287,7 +291,8 @@ Item {
             Slot {
                 id: mic
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: Theme.micOffsetY
+                anchors.verticalCenterOffset: Theme.moduleOffsetY + Theme.micOffsetY
+                anchors.alignWhenCentered: Theme.idleAlignWhenCentered
                 shown: Mic.muted
                 leadingGap: battery.active ? Theme.rowGap : Theme.clockGap
                 onClicked: Mic.toggle()
@@ -302,7 +307,8 @@ Item {
             Slot {
                 id: record
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: Theme.recordOffsetY
+                anchors.verticalCenterOffset: Theme.moduleOffsetY + Theme.recordOffsetY
+                anchors.alignWhenCentered: Theme.idleAlignWhenCentered
                 size: Theme.recordDot
                 shown: Record.active
                 leadingGap: (battery.active || mic.shown) ? Theme.rowGap : Theme.clockGap

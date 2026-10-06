@@ -36,6 +36,18 @@ Fade {
         hold()
         sel = 0
         start = 0
+        px = -1
+        py = -1
+    }
+
+    onNChanged: {
+        if (n <= 0) {
+            sel = 0
+            start = 0
+        } else {
+            sel = Math.max(0, Math.min(n - 1, sel))
+            start = Math.max(0, Math.min(Math.max(0, n - rows), start))
+        }
     }
 
     function aim(p, i) {

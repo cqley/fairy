@@ -12,12 +12,12 @@ Item {
     property bool pluggedIn: false
     property int leadingGap: Theme.batGap
     readonly property bool active: root.shown && root.available
-    readonly property int targetWidth: root.active ? Theme.batIconW : 0
+    readonly property real targetWidth: root.active ? root.leadingGap + Theme.batW + Theme.batNubGap + Theme.batNubW : 0
     property real enter: root.active ? 1 : 0
     property real boltEnter: root.pluggedIn ? 1 : 0
 
     width: (root.leadingGap + Theme.batW + Theme.batNubGap + Theme.batNubW) * root.enter
-    height: Theme.batRowH
+    height: Theme.h
     visible: root.enter > 0
     clip: true
 
@@ -39,6 +39,7 @@ Item {
         id: holder
         width: root.leadingGap + Theme.batW + Theme.batNubGap + Theme.batNubW
         height: Theme.batRowH
+        anchors.verticalCenter: parent.verticalCenter
         scale: Theme.batPopScale + (1 - Theme.batPopScale) * root.enter
         opacity: root.enter
 

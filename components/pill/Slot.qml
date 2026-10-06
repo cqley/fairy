@@ -12,7 +12,7 @@ Item {
     signal clicked
 
     width: (leadingGap + size) * enter
-    height: size
+    height: Theme.h
     visible: enter > 0
     clip: true
 
@@ -28,13 +28,16 @@ Item {
         x: root.leadingGap
         width: root.size
         height: root.size
+        anchors.verticalCenter: parent.verticalCenter
         scale: Theme.slotScale + (1 - Theme.slotScale) * root.enter
         opacity: root.enter
     }
 
     MouseArea {
-        anchors.fill: parent
-        anchors.margins: -Theme.slotHit
+        x: root.leadingGap - Theme.slotHit
+        y: Math.round((root.height - root.size) / 2) - Theme.slotHit
+        width: root.size + Theme.slotHit * 2
+        height: root.size + Theme.slotHit * 2
         enabled: root.shown
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()

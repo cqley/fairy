@@ -34,7 +34,7 @@ Fade {
 
     FrameAnimation {
         running: root.visible && root.on && !root.scrubbing
-        onTriggered: root.p.positionChanged()
+        onTriggered: if (root.p && root.p.positionSupported) root.p.positionChanged()
     }
 
     Column {

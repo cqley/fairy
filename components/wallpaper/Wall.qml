@@ -101,6 +101,8 @@ Fade {
     }
 
     function reset() {
+        px = -1
+        py = -1
         if (!n) {
             cursor = 0
             trackX = 0

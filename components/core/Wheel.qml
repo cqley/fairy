@@ -7,6 +7,7 @@ MouseArea {
     acceptedButtons: Qt.NoButton
 
     onVisibleChanged: acc = 0
+    onEnabledChanged: if (!enabled) acc = 0
 
     onWheel: wheel => {
         acc += wheel.angleDelta.y

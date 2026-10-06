@@ -30,6 +30,8 @@ Fade {
     function reset() {
         snap = true
         sel = 0
+        px = -1
+        py = -1
         snap = false
     }
 

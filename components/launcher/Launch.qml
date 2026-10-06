@@ -36,7 +36,7 @@ Pick {
             const k = i === 0 ? 0 : n.includes(" " + s) ? 1 : i > 0 ? 2 : (generic + " " + keywords.join(" ")).toLowerCase().includes(s) ? 3 : fuzzy(n, s) ? 4 : -1
             if (k >= 0) hits.push({ a, k })
         }
-        return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || x.a.name.length - y.a.name.length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
+        return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || String(x.a.name || "").length - String(y.a.name || "").length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
     }
 
     function src(icon) {
@@ -55,7 +55,7 @@ Pick {
         const a = results[sel]
         if (!a) return
         Launcher.bump(a.id)
-        if (a.runInTerminal && a.command && a.command.length) Quickshell.execDetached({ command: Theme.terminal.concat(Array.from(a.command)), workingDirectory: a.workingDirectory })
+        if (a.runInTerminal && a.command && a.command.length) Quickshell.execDetached({ command: Theme.terminal.concat(Array.from(a.command)), workingDirectory: a.workingDirectory || "" })
         else a.execute()
         Launcher.open = false
     }

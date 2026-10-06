@@ -96,6 +96,8 @@ Singleton {
     readonly property int idleTopOffsetY: 0
     readonly property int clockOffsetX: 0
     readonly property int clockOffsetY: 0
+    readonly property int moduleOffsetY: 0
+    readonly property bool idleAlignWhenCentered: true
     readonly property int batteryOffsetX: 0
     readonly property int batteryOffsetY: 0
     readonly property int micOffsetX: 0
