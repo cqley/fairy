@@ -33,6 +33,7 @@ Fade {
     }
 
     function reset() {
+        fast = false
         hold()
         sel = 0
         start = 0

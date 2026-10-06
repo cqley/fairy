@@ -4,6 +4,7 @@ import Quickshell
 
 Pick {
     id: root
+    readonly property var apps: DesktopEntries.applications.values.filter(a => !a.noDisplay)
     readonly property var raw: find(input.text)
     property var results: raw
 
@@ -14,7 +15,8 @@ Pick {
 
     function fuzzy(n, s) {
         let j = 0
-        for (let i = 0; i < n.length && j < s.length; i++) if (n[i] === s[j]) j++
+        for (let i = 0; i < n.length && j < s.length; i++)
+            if (n[i] === s[j]) j++
         return j === s.length
     }
 
@@ -22,7 +24,7 @@ Pick {
         const s = String(q || "").trim().toLowerCase()
         const c = a => Number(Launcher.counts[a.id]) || 0
         const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""))
-        const apps = DesktopEntries.applications.values.filter(a => !a.noDisplay)
+        const apps = root.apps
         if (!s) {
             const top = apps.filter(a => c(a) > 0).sort((a, b) => c(b) - c(a) || byName(a, b)).slice(0, Theme.rows)
             return top.concat(apps.filter(a => !top.includes(a)).sort(byName))
@@ -31,9 +33,10 @@ Pick {
         for (const a of apps) {
             const n = String(a.name || "").toLowerCase()
             const i = n.indexOf(s)
-            const generic = String(a.genericName || "")
-            const keywords = Array.from(a.keywords || [])
-            const k = i === 0 ? 0 : n.includes(" " + s) ? 1 : i > 0 ? 2 : (generic + " " + keywords.join(" ")).toLowerCase().includes(s) ? 3 : fuzzy(n, s) ? 4 : -1
+            const generic = String(a.genericName || "").toLowerCase()
+            const keywords = Array.isArray(a.keywords) ? a.keywords.map(String).join(" ").toLowerCase() : ""
+            const haystack = generic + " " + keywords
+            const k = i === 0 ? 0 : n.includes(" " + s) ? 1 : i > 0 ? 2 : haystack.includes(s) ? 3 : fuzzy(n, s) ? 4 : -1
             if (k >= 0) hits.push({ a, k })
         }
         return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || String(x.a.name || "").length - String(y.a.name || "").length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
@@ -61,14 +64,19 @@ Pick {
     }
 
     onRawChanged: {
-        sel = 0
         const r = results || []
-        if (raw.length !== r.length || raw.some((a, i) => a !== r[i])) results = raw
+        const changed = raw.length !== r.length || raw.some((a, i) => String(a && a.id || "") !== String(r[i] && r[i].id || ""))
+        if (!changed) return
+        results = raw
+        sel = 0
     }
 
     onVisibleChanged: {
         if (visible) input.forceActiveFocus()
-        else clear()
+        else {
+            root.fast = false
+            clear()
+        }
     }
 
     Connections {
@@ -189,7 +197,13 @@ Pick {
                 height: Math.min(root.n, Theme.rows) * Theme.rowH
                 clip: true
                 interactive: false
-                model: root.results
+                ScriptModel {
+                    id: appModel
+                    values: root.results
+                    objectProp: "id"
+                }
+
+                model: appModel
                 cacheBuffer: Theme.rowH * Theme.rows * 2
                 reuseItems: true
                 contentY: root.start * Theme.rowH
@@ -208,49 +222,37 @@ Pick {
                     width: list.width
                     height: Theme.rowH
 
+                    readonly property bool selected: root.sel === row.index
+
                     Rectangle {
-                        id: tile
-                        x: Theme.launchIconX
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: Theme.launchSelectionX
+                        anchors.rightMargin: Theme.launchSelectionRight
                         anchors.verticalCenter: parent.verticalCenter
-                        width: Theme.launchIconBox
-                        height: Theme.launchIconBox
-                        radius: Theme.launchIconRadius
-                        color: selected ? Theme.launchIconSelectedFill : Theme.launchIconFill
-                        border.color: selected ? Theme.accent : area.containsMouse ? Theme.launchIconHoverBorder : Theme.launchIconBorder
-                        border.width: Theme.launchIconBorderWidth
+                        height: Theme.launchSelectionH
+                        radius: Theme.launchSelectionRadius
+                        color: Theme.launchSelectionFill
+                        opacity: row.selected ? 1 : 0
                         antialiasing: true
-                        transformOrigin: Item.Center
-                        scale: area.pressed ? Theme.feedbackPressScale : selected ? Theme.launchIconSelectedScale : area.containsMouse ? Theme.feedbackHoverScale : 1
 
-                        readonly property bool selected: root.sel === row.index
-
-                        Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
-                        Behavior on color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
-                        Behavior on border.color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
-
-                        Image {
-                            id: img
-                            anchors.centerIn: parent
-                            width: Theme.launchIconSize
-                            height: Theme.launchIconSize
-                            source: root.src(row.modelData.icon)
-                            asynchronous: true
-                            fillMode: Image.PreserveAspectFit
-                            sourceSize: Qt.size(Theme.launchIconSourceSize, Theme.launchIconSourceSize)
-                            visible: status === Image.Ready
-                        }
-
-                        Txt {
-                            anchors.centerIn: parent
-                            text: String(row.modelData.name || "?").charAt(0).toLowerCase()
-                            visible: img.status === Image.Error || img.status === Image.Null
-                            font.pixelSize: Theme.launchFallbackPx
-                            font.weight: Font.Bold
-                        }
+                        Behavior on opacity { NumberAnimation { duration: Theme.launchSelectionDuration; easing.type: Theme.ease } }
                     }
 
+                    LaunchIcon {
+                        id: icon
+                        x: Theme.launchIconX
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: root.src(row.modelData.icon)
+                        fallbackText: String(row.modelData.name || "?").charAt(0).toLowerCase()
+                        selected: row.selected
+                        hovered: area.containsMouse
+                        pressed: area.pressed
+                    }
+
+
                     Column {
-                        anchors.left: tile.right
+                        anchors.left: icon.right
                         anchors.leftMargin: Theme.launchTextGap
                         anchors.right: parent.right
                         anchors.rightMargin: Theme.rowR
@@ -259,7 +261,7 @@ Pick {
 
                         Txt {
                             width: parent.width
-                            text: row.modelData.name
+                            text: String(row.modelData.name || "")
                             elide: Text.ElideRight
                             maximumLineCount: 1
                             font.weight: Font.DemiBold
@@ -267,7 +269,7 @@ Pick {
 
                         Txt {
                             width: parent.width
-                            text: row.modelData.comment || row.modelData.genericName
+                            text: String(row.modelData.comment || row.modelData.genericName || "")
                             visible: text !== ""
                             elide: Text.ElideRight
                             maximumLineCount: 1
@@ -286,6 +288,8 @@ Pick {
                             root.run()
                         }
                     }
+
+                    ListView.onPooled: icon.cancel()
                 }
             }
         }

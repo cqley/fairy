@@ -79,6 +79,13 @@ Singleton {
     readonly property int launchIconRadius: 7
     readonly property int launchIconBorderWidth: 1
     readonly property real launchIconSelectedScale: 1.02
+    readonly property int launchSelectionX: 4
+    readonly property int launchSelectionRight: 4
+    readonly property int launchSelectionH: rowH - 2
+    readonly property int launchSelectionRadius: launchSelectionH / 2
+    readonly property color launchSelectionFill: Qt.rgba(1, 1, 1, 0.06)
+    readonly property int launchSelectionDuration: feedbackDuration
+    readonly property int launchIconCrossfade: 150
     readonly property color launchIconFill: Qt.rgba(1, 1, 1, 0.04)
     readonly property color launchIconSelectedFill: chip
     readonly property color launchIconBorder: Qt.rgba(1, 1, 1, 0.16)

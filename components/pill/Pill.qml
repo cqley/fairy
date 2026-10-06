@@ -80,7 +80,7 @@ Item {
 
     readonly property real idleTargetW: Math.max(
         Theme.w,
-        Math.round(clockText.implicitWidth + battery.targetWidth + mic.targetWidth + record.targetWidth + Theme.pad)
+        clockText.implicitWidth + battery.targetWidth + mic.targetWidth + record.targetWidth + Theme.pad
     )
     readonly property real targetW: Polkit.open ? Theme.authW
         : root.alert ? Theme.noteW
