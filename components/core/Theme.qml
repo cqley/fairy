@@ -57,6 +57,15 @@ Singleton {
     readonly property int openH: 80
     readonly property int noteW: 264
     readonly property int noteH: 48
+    readonly property int noteOpenW: 280
+    readonly property int noteOpenH: 78
+    readonly property int noteIcon: 28
+    readonly property int noteIconR: 14
+    readonly property int noteIconX: 10
+    readonly property int noteTextGap: 10
+    readonly property int noteTextRight: 14
+    readonly property int noteBodyLines: 1
+    readonly property int noteOpenBodyLines: 3
     readonly property int radius: 28
 
     readonly property int launchW: 340

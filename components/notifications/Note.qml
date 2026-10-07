@@ -8,25 +8,49 @@ import Quickshell.Widgets
 Fade {
     id: root
     property var n
-    property string summary
-    property string body
-    property string letter
-    property string source
-    property bool critical
-    property bool battery
-    property bool charging
+    property bool expanded: false
+    property string summary: ""
+    property string body: ""
+    property string appLabel: ""
+    property string letter: "?"
+    property string source: ""
+    property bool critical: false
+    property bool battery: false
+    property bool charging: false
 
-    width: Theme.noteW
-    height: Theme.noteH
+    anchors.fill: parent
 
-    onNChanged: {
-        if (!n) return
-        summary = String(n.summary || "")
-        body = String(n.body || "").replace(/^\s*<a[^>]*>.*?<\/a>\s*/, "").replace(/<[^>]*>/g, "")
-        letter = ((n.appName || "?")[0] || "?").toLowerCase()
-        critical = n.urgency === NotificationUrgency.Critical
+    function plain(text) {
+        return String(text || "")
+            .replace(/^\s*<a[^>]*>.*?<\/a>\s*/i, "")
+            .replace(/<[^>]*>/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+    }
+
+    function refresh() {
+        if (!n) {
+            summary = ""
+            body = ""
+            appLabel = ""
+            letter = "?"
+            critical = false
+            battery = false
+            charging = false
+            source = ""
+            return
+        }
+
+        summary = plain(n.summary)
+        body = plain(n.body)
         battery = !!n.system && n.kind === "battery"
         charging = battery && !!n.charging
+        critical = n.urgency === NotificationUrgency.Critical
+
+        const name = String(n.appName || "").trim()
+        appLabel = battery ? "fairy" : name.toLowerCase()
+        letter = ((name || "?")[0] || "?").toLowerCase()
+
         const image = String(n.image || "")
         const icon = String(n.appIcon || "")
         source = !battery && image !== ""
@@ -36,13 +60,26 @@ Fade {
                 : ""
     }
 
+    onNChanged: refresh()
+
+    Connections {
+        target: root.n && !root.n.system ? root.n : null
+        ignoreUnknownSignals: true
+        function onSummaryChanged() { root.refresh() }
+        function onBodyChanged() { root.refresh() }
+        function onAppNameChanged() { root.refresh() }
+        function onAppIconChanged() { root.refresh() }
+        function onImageChanged() { root.refresh() }
+        function onUrgencyChanged() { root.refresh() }
+    }
+
     ClippingRectangle {
         id: chip
-        x: 10
+        x: Theme.noteIconX
         anchors.verticalCenter: parent.verticalCenter
-        width: 28
-        height: 28
-        radius: 14
+        width: Theme.noteIcon
+        height: Theme.noteIcon
+        radius: Theme.noteIconR
         color: root.critical ? Theme.red : Theme.chip
 
         StableImage {
@@ -50,7 +87,7 @@ Fade {
             anchors.fill: parent
             source: root.source
             fillMode: Image.PreserveAspectCrop
-            sourceSize: Qt.size(56, 56)
+            sourceSize: Qt.size(Theme.noteIcon * 2, Theme.noteIcon * 2)
         }
 
         Item {
@@ -106,36 +143,65 @@ Fade {
             anchors.centerIn: parent
             text: root.letter
             visible: !root.battery && img.showPlaceholder
-            font.pixelSize: 12
+            font.pixelSize: Theme.fsM
             font.weight: Font.Bold
         }
     }
 
-    Column {
+    Item {
         anchors.left: chip.right
-        anchors.leftMargin: 10
+        anchors.leftMargin: Theme.noteTextGap
         anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: 1
+        anchors.rightMargin: Theme.noteTextRight
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
 
-        Txt {
+        Column {
+            id: lines
             width: parent.width
-            text: root.summary
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            font.pixelSize: 12
-            font.weight: Font.DemiBold
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 1
+
+            Txt {
+                width: parent.width
+                text: root.summary
+                elide: Text.ElideRight
+                maximumLineCount: 1
+                font.pixelSize: Theme.fsM
+                font.weight: Font.DemiBold
+            }
+
+            Txt {
+                width: parent.width
+                text: root.body
+                visible: text !== ""
+                elide: Text.ElideRight
+                wrapMode: Text.Wrap
+                maximumLineCount: Theme.noteOpenBodyLines
+                opacity: 0.6
+                font.pixelSize: Theme.fsS
+            }
         }
 
-        Txt {
-            width: parent.width
-            text: root.body
-            visible: text !== ""
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            opacity: 0.6
-            font.pixelSize: 10
+        Fade {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: lines.top
+            anchors.bottomMargin: 2
+            height: appTxt.implicitHeight
+            shown: root.expanded && root.appLabel !== ""
+            ready: true
+
+            Txt {
+                id: appTxt
+                width: parent.width
+                text: root.appLabel
+                elide: Text.ElideRight
+                maximumLineCount: 1
+                opacity: 0.45
+                font.pixelSize: Theme.fsXS
+                font.weight: Font.Medium
+            }
         }
     }
 }
