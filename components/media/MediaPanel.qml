@@ -53,14 +53,12 @@ Fade {
                 radius: 10
                 color: Theme.chip
 
-                Image {
+                StableImage {
                     id: img
                     anchors.fill: parent
                     source: root.p ? root.p.trackArtUrl : ""
-                    asynchronous: true
                     fillMode: Image.PreserveAspectCrop
                     sourceSize: Qt.size(Theme.artS * 2, Theme.artS * 2)
-                    visible: status === Image.Ready
                 }
 
                 Shape {
@@ -69,7 +67,7 @@ Fade {
                     width: 24
                     height: 24
                     opacity: 0.4
-                    visible: img.status !== Image.Ready
+                    visible: img.showPlaceholder
                     preferredRendererType: Shape.CurveRenderer
 
                     ShapePath {

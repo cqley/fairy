@@ -5,6 +5,15 @@ import Quickshell
 Pick {
     id: root
     readonly property var apps: DesktopEntries.applications.values.filter(a => !a.noDisplay)
+    readonly property var catalog: apps.map(a => ({
+        id: String(a.id || a.name || ""),
+        app: a,
+        name: String(a.name || ""),
+        genericName: String(a.genericName || ""),
+        comment: String(a.comment || ""),
+        keywords: Array.isArray(a.keywords) ? a.keywords.map(String) : [],
+        icon: src(a.icon)
+    }))
     readonly property var raw: find(input.text)
     property var results: raw
 
@@ -23,23 +32,23 @@ Pick {
     function find(q) {
         const s = String(q || "").trim().toLowerCase()
         const c = a => Number(Launcher.counts[a.id]) || 0
-        const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""))
-        const apps = root.apps
+        const byName = (a, b) => a.name.localeCompare(b.name)
+        const apps = root.catalog
         if (!s) {
             const top = apps.filter(a => c(a) > 0).sort((a, b) => c(b) - c(a) || byName(a, b)).slice(0, Theme.rows)
             return top.concat(apps.filter(a => !top.includes(a)).sort(byName))
         }
         const hits = []
         for (const a of apps) {
-            const n = String(a.name || "").toLowerCase()
+            const n = a.name.toLowerCase()
             const i = n.indexOf(s)
-            const generic = String(a.genericName || "").toLowerCase()
-            const keywords = Array.isArray(a.keywords) ? a.keywords.map(String).join(" ").toLowerCase() : ""
+            const generic = a.genericName.toLowerCase()
+            const keywords = a.keywords.join(" ").toLowerCase()
             const haystack = generic + " " + keywords
             const k = i === 0 ? 0 : n.includes(" " + s) ? 1 : i > 0 ? 2 : haystack.includes(s) ? 3 : fuzzy(n, s) ? 4 : -1
             if (k >= 0) hits.push({ a, k })
         }
-        return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || String(x.a.name || "").length - String(y.a.name || "").length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
+        return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || x.a.name.length - y.a.name.length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
     }
 
     function src(icon) {
@@ -55,9 +64,10 @@ Pick {
     }
 
     function run() {
-        const a = results[sel]
+        const item = results[sel]
+        const a = item ? item.app : null
         if (!a) return
-        Launcher.bump(a.id)
+        Launcher.bump(item.id)
         if (a.runInTerminal && a.command && a.command.length) Quickshell.execDetached({ command: Theme.terminal.concat(Array.from(a.command)), workingDirectory: a.workingDirectory || "" })
         else a.execute()
         Launcher.open = false
@@ -65,7 +75,8 @@ Pick {
 
     onRawChanged: {
         const r = results || []
-        const changed = raw.length !== r.length || raw.some((a, i) => String(a && a.id || "") !== String(r[i] && r[i].id || ""))
+        const key = a => [a && a.id, a && a.name, a && a.comment, a && a.genericName, a && a.icon].map(String).join("\u0000")
+        const changed = raw.length !== r.length || raw.some((a, i) => key(a) !== key(r[i]))
         if (!changed) return
         results = raw
         sel = 0
@@ -243,8 +254,8 @@ Pick {
                         id: icon
                         x: Theme.launchIconX
                         anchors.verticalCenter: parent.verticalCenter
-                        source: root.src(row.modelData.icon)
-                        fallbackText: String(row.modelData.name || "?").charAt(0).toLowerCase()
+                        source: row.modelData.icon
+                        fallbackText: row.modelData.name.charAt(0).toLowerCase() || "?"
                         selected: row.selected
                         hovered: area.containsMouse
                         pressed: area.pressed
@@ -261,7 +272,7 @@ Pick {
 
                         Txt {
                             width: parent.width
-                            text: String(row.modelData.name || "")
+                            text: row.modelData.name
                             elide: Text.ElideRight
                             maximumLineCount: 1
                             font.weight: Font.DemiBold
@@ -269,7 +280,7 @@ Pick {
 
                         Txt {
                             width: parent.width
-                            text: String(row.modelData.comment || row.modelData.genericName || "")
+                            text: row.modelData.comment || row.modelData.genericName
                             visible: text !== ""
                             elide: Text.ElideRight
                             maximumLineCount: 1
@@ -289,7 +300,6 @@ Pick {
                         }
                     }
 
-                    ListView.onPooled: icon.cancel()
                 }
             }
         }

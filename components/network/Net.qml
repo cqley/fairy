@@ -19,6 +19,7 @@ Singleton {
     property string target: ""
     property string secret: ""
     property string activeConnection: ""
+    property bool canceling: false
 
     readonly property string title: {
         if (!enabled)
@@ -124,6 +125,7 @@ Singleton {
     }
 
     function cancelAsk() {
+        canceling = up.running
         if (up.running)
             up.signal(15)
         asking = ""
@@ -299,7 +301,11 @@ Singleton {
             onTextChanged: root.readPrompt(text)
         }
         onExited: code => {
+            const canceled = root.canceling
+            root.canceling = false
             root.busy = false
+            if (canceled)
+                return
             if (code === 0) {
                 root.asking = ""
                 root.error = ""

@@ -213,11 +213,9 @@ Fade {
                                 antialiasing: false
                                 color: Theme.chip
 
-                                Image {
+                                StableImage {
                                     anchors.fill: parent
                                     source: cell.info ? Theme.url(cell.info.path) : ""
-                                    asynchronous: true
-                                    cache: true
                                     fillMode: Image.PreserveAspectCrop
                                     sourceSize: Qt.size(Theme.thumbW, Theme.thumbH)
                                 }

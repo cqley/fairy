@@ -45,14 +45,12 @@ Fade {
         radius: 14
         color: root.critical ? Theme.red : Theme.chip
 
-        Image {
+        StableImage {
             id: img
             anchors.fill: parent
             source: root.source
-            asynchronous: true
             fillMode: Image.PreserveAspectCrop
             sourceSize: Qt.size(56, 56)
-            visible: root.source !== "" && status === Image.Ready
         }
 
         Item {
@@ -107,7 +105,7 @@ Fade {
         Txt {
             anchors.centerIn: parent
             text: root.letter
-            visible: !root.battery && img.status !== Image.Ready
+            visible: !root.battery && img.showPlaceholder
             font.pixelSize: 12
             font.weight: Font.Bold
         }

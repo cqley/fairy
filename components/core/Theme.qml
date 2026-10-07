@@ -26,6 +26,12 @@ Singleton {
     readonly property int netToggleW: 36
     readonly property int netToggleH: 20
     readonly property int netKnob: 14
+    readonly property int netFocusInset: 4
+    readonly property int netFocusInsetY: 1
+    readonly property int netFocusMarkX: 7
+    readonly property int netFocusMarkW: 3
+    readonly property int netFocusMarkH: netRowH / 2 - 1
+    readonly property color netFocusFill: chip
     readonly property color bg: "#000000"
     readonly property color fg: "#ffffff"
     readonly property color chip: "#1c1c1e"
@@ -85,7 +91,6 @@ Singleton {
     readonly property int launchSelectionRadius: launchSelectionH / 2
     readonly property color launchSelectionFill: Qt.rgba(1, 1, 1, 0.06)
     readonly property int launchSelectionDuration: feedbackDuration
-    readonly property int launchIconCrossfade: 150
     readonly property color launchIconFill: Qt.rgba(1, 1, 1, 0.04)
     readonly property color launchIconSelectedFill: chip
     readonly property color launchIconBorder: Qt.rgba(1, 1, 1, 0.16)

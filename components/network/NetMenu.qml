@@ -109,9 +109,6 @@ Pick {
                 color: !Net.enabled ? Theme.red : Net.phase !== "" ? Theme.accent : Theme.fg
                 opacity: pulse.running ? 0.55 + 0.45 * pulse.val : 1
 
-                Behavior on scale {
-                    NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease }
-                }
 
                 Behavior on color {
                     ColorAnimation {
@@ -237,7 +234,13 @@ Pick {
                 highlight: Hi {
                     pick: root
                     row: Theme.netRowH
-                    width: list.width
+                    insetX: Theme.netFocusInset
+                    insetY: Theme.netFocusInsetY
+                    markX: Theme.netFocusMarkX
+                    markW: Theme.netFocusMarkW
+                    markHeight: Theme.netFocusMarkH
+                    fill: Theme.netFocusFill
+                    width: list.width - Theme.netFocusInset * 2
                     visible: !root.ask
                 }
 
@@ -251,6 +254,7 @@ Pick {
                     readonly property string status: root.statusOf(modelData)
                     readonly property real sig: modelData ? modelData.signal : 0
                     readonly property bool locked: !!modelData && !!modelData.locked
+                    readonly property bool selected: root.sel === row.index
 
                     width: list.width
                     height: Theme.netRowH
@@ -272,8 +276,8 @@ Pick {
                         text: row.modelData ? row.modelData.ssid : ""
                         elide: Text.ElideRight
                         font.pixelSize: Theme.fsL
-                        font.weight: row.on || row.aimed ? Font.DemiBold : Font.Normal
-                        color: row.on || row.aimed ? Theme.accent : Theme.fg
+                        font.weight: row.on || row.aimed || row.selected ? Font.DemiBold : Font.Normal
+                        color: row.on || row.aimed || row.selected ? Theme.accent : Theme.fg
 
                         Behavior on color {
                             ColorAnimation {
