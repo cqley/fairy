@@ -164,7 +164,7 @@ Fade {
 
         Item {
             width: parent.width
-            height: Theme.thumbH + 12
+            height: Theme.wallTrackH
             clip: true
 
             Item {
@@ -193,7 +193,7 @@ Fade {
                             width: Theme.thumbW
                             height: Theme.thumbH
                             transformOrigin: Item.Center
-                            scale: cell.on ? 1.08 : area.pressed ? Theme.feedbackPressScale : area.containsMouse ? Theme.feedbackHoverScale : 1
+                            scale: cell.on ? Theme.wallFocusScale : area.pressed ? Theme.feedbackPressScale : area.containsMouse ? Theme.feedbackHoverScale : 1
                             opacity: cell.on ? 1 : area.containsMouse ? 0.82 : 0.7
                             z: cell.on ? 1 : 0
 
@@ -209,26 +209,25 @@ Fade {
 
                             ClippingRectangle {
                                 anchors.fill: parent
-                                radius: 8
-                                antialiasing: false
+                                radius: Theme.wallRadius
                                 color: Theme.chip
 
                                 StableImage {
                                     anchors.fill: parent
                                     source: cell.info ? Theme.url(cell.info.path) : ""
                                     fillMode: Image.PreserveAspectCrop
-                                    sourceSize: Qt.size(Theme.thumbW, Theme.thumbH)
+                                    sourceSize: Qt.size(Theme.wallSourceW, Theme.wallSourceH)
                                 }
                             }
 
                             Rectangle {
                                 anchors.fill: parent
-                                anchors.margins: -2
-                                radius: 10
+                                anchors.margins: -Theme.wallRing
+                                radius: Theme.wallRadius + Theme.wallRing
                                 color: "transparent"
-                                border.width: cell.on ? 2 : 0
+                                border.width: cell.on ? Theme.wallRing : 0
                                 border.color: Theme.accent
-                                antialiasing: false
+                                antialiasing: true
                             }
                         }
 

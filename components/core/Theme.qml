@@ -110,6 +110,12 @@ Singleton {
     readonly property int thumbH: 68
     readonly property int thumbGap: 16
     readonly property int wallN: 5
+    readonly property int wallTrackH: thumbH + 20
+    readonly property int wallRadius: 8
+    readonly property int wallRing: 2
+    readonly property int wallSourceW: thumbW * 2
+    readonly property int wallSourceH: thumbH * 2
+    readonly property real wallFocusScale: 1.15
     readonly property int wallW: thumbW * wallN + thumbGap * (wallN - 1) + wallPad * 2
 
     readonly property int authW: 380
