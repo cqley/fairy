@@ -40,7 +40,6 @@ Singleton {
             appIcon: "",
             image: "",
             urgency: NotificationUrgency.Normal,
-            expireTimeout: 4,
             charging: charging
         }].slice(-Theme.notificationQueueMax)
         if (current === null && !gap.running) pump()
@@ -51,15 +50,12 @@ Singleton {
         queue = q.slice(1)
         if (q.length === 0) return
         current = q[0]
-        hold.interval = span(current)
-        hard.interval = Math.max(hold.interval * 2, Theme.dwellCritical)
-        hard.restart()
+        hold.interval = current.urgency === NotificationUrgency.Critical ? Theme.dwellCritical : Theme.dwell
         if (!hovered) hold.restart()
     }
 
     function next() {
         hold.stop()
-        hard.stop()
         current = null
         gap.restart()
     }
@@ -80,19 +76,8 @@ Singleton {
             n.expire()
     }
 
-    function span(n) {
-        const t = Number(n.expireTimeout) * 1000
-        if (isFinite(t) && t > 0) return Math.min(Math.max(t, 3000), 15000)
-        return n.urgency === NotificationUrgency.Critical ? Theme.dwellCritical : Theme.dwell
-    }
-
     Timer {
         id: hold
-        onTriggered: root.drop()
-    }
-
-    Timer {
-        id: hard
         onTriggered: root.drop()
     }
 

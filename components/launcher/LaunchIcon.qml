@@ -26,24 +26,24 @@ Item {
         Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
         Behavior on color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
         Behavior on border.color { ColorAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
+    }
 
-        StableImage {
-            id: icon
-            anchors.centerIn: parent
-            width: Theme.launchIconSize
-            height: Theme.launchIconSize
-            source: root.source
-            sourceSize: Qt.size(Theme.launchIconSourceSize, Theme.launchIconSourceSize)
-            mipmap: true
-            smooth: true
-        }
+    StableImage {
+        id: icon
+        anchors.centerIn: parent
+        width: Theme.launchIconSize
+        height: Theme.launchIconSize
+        source: root.source
+        sourceSize: Qt.size(Theme.launchIconSourceSize, Theme.launchIconSourceSize)
+        mipmap: true
+        smooth: true
+    }
 
-        Txt {
-            anchors.centerIn: parent
-            text: root.fallbackText
-            visible: icon.showPlaceholder
-            font.pixelSize: Theme.launchFallbackPx
-            font.weight: Font.Bold
-        }
+    Txt {
+        anchors.centerIn: parent
+        text: root.fallbackText
+        visible: icon.showPlaceholder
+        font.pixelSize: Theme.launchFallbackPx
+        font.weight: Font.Bold
     }
 }

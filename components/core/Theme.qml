@@ -91,7 +91,7 @@ Singleton {
     readonly property int launchSelectionRadius: launchSelectionH / 2
     readonly property color launchSelectionFill: Qt.rgba(1, 1, 1, 0.06)
     readonly property int launchSelectionDuration: feedbackDuration
-    readonly property color launchIconFill: Qt.rgba(1, 1, 1, 0.04)
+    readonly property color launchIconFill: Qt.rgba(chip.r, chip.g, chip.b, 0.36)
     readonly property color launchIconSelectedFill: chip
     readonly property color launchIconBorder: Qt.rgba(1, 1, 1, 0.16)
     readonly property color launchIconHoverBorder: Qt.rgba(1, 1, 1, 0.34)
@@ -199,8 +199,8 @@ Singleton {
     readonly property real feedbackHoverFill: 0.06
     readonly property real feedbackPressFill: 0.1
     readonly property real feedbackFocusBorder: 1
-    readonly property int dwell: 5000
-    readonly property int dwellCritical: 12000
+    readonly property int dwell: 3000
+    readonly property int dwellCritical: 5000
     readonly property int notificationQueueMax: 32
     readonly property real batRedAt: 0.15
     readonly property real batYellowAt: 0.25
