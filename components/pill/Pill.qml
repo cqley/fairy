@@ -29,6 +29,7 @@ Item {
     property real hAnim: Theme.h
 
     onModalChanged: full = false
+    onAlertChanged: if (!alert) full = false
     onHotChanged: sync()
     Component.onCompleted: {
         sync()
@@ -83,7 +84,7 @@ Item {
         clockText.implicitWidth + battery.targetWidth + mic.targetWidth + record.targetWidth + Theme.pad
     )
     readonly property real targetW: Polkit.open ? Theme.authW
-        : root.alert ? (root.hot ? Theme.noteOpenW : Theme.noteW)
+        : root.alert ? (root.full ? Theme.noteFullW : root.hot ? Theme.noteOpenW : Theme.noteW)
         : Launcher.open ? Theme.launchW
         : Power.open ? Theme.powerW
         : Wallpaper.open ? Theme.wallW
@@ -93,7 +94,7 @@ Item {
         : root.calm ? root.idleTargetW : Theme.w
 
     readonly property real targetH: Polkit.open ? auth.y + auth.height + Theme.authPad
-        : root.alert ? (root.hot ? Theme.noteOpenH : Theme.noteH)
+        : root.alert ? (root.full ? Theme.noteFullH : root.hot ? Theme.noteOpenH : Theme.noteH)
         : Launcher.open ? launch.y + launch.height + Theme.lpad
         : Power.open ? power.y + power.height + Theme.pwPad
         : Wallpaper.open ? wall.y + wall.height + Theme.wallPad
@@ -147,7 +148,7 @@ Item {
         TapHandler {
             onTapped: {
                 if (root.alert)
-                    Notifs.dismiss()
+                    root.full = !root.full
                 else if (!root.modal && root.hot)
                     root.full = !root.full
             }
@@ -180,9 +181,20 @@ Item {
 
         Note {
             n: Notifs.current
-            expanded: root.hot
-            shown: root.alert
-            ready: true
+            shown: root.alert && !root.hot && !root.full
+            ready: !root.resizing
+        }
+
+        NoteMore {
+            n: Notifs.current
+            shown: root.alert && root.hot && !root.full
+            ready: !root.resizing
+        }
+
+        NoteFull {
+            n: Notifs.current
+            shown: root.alert && root.full
+            ready: !root.resizing
         }
 
         Launch {
@@ -348,3 +360,4 @@ Item {
         }
     }
 }
+

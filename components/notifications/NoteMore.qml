@@ -8,8 +8,10 @@ import Quickshell.Widgets
 Fade {
     id: root
     property var n
+    property bool full: false
     property string summary: ""
     property string body: ""
+    property string appLabel: ""
     property string letter: "?"
     property string source: ""
     property string picture: ""
@@ -17,6 +19,7 @@ Fade {
     property bool critical: false
     property bool battery: false
     property bool charging: false
+    readonly property int lines: full ? Theme.noteFullBodyLines : Theme.noteOpenBodyLines
 
     anchors.fill: parent
 
@@ -48,6 +51,7 @@ Fade {
         if (!n) {
             summary = ""
             body = ""
+            appLabel = ""
             letter = "?"
             critical = false
             battery = false
@@ -65,6 +69,7 @@ Fade {
         critical = n.urgency === NotificationUrgency.Critical
 
         const name = String(n.appName || "").trim()
+        appLabel = battery ? "fairy" : name.toLowerCase()
         letter = ((name || "?")[0] || "?").toLowerCase()
         picture = battery ? "" : fileUrl(n.image)
         mark = battery ? "" : (fileUrl(n.appIcon) || fileUrl(n.desktopEntry))
@@ -173,6 +178,17 @@ Fade {
 
         Txt {
             width: parent.width
+            text: root.appLabel
+            visible: text !== ""
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            opacity: 0.45
+            font.pixelSize: Theme.fsXS
+            font.weight: Font.Medium
+        }
+
+        Txt {
+            width: parent.width
             text: root.summary
             elide: Text.ElideRight
             maximumLineCount: 1
@@ -185,9 +201,11 @@ Fade {
             text: root.body
             visible: text !== ""
             elide: Text.ElideRight
-            maximumLineCount: Theme.noteBodyLines
+            wrapMode: Text.Wrap
+            maximumLineCount: root.lines
             opacity: 0.6
             font.pixelSize: Theme.fsS
         }
     }
 }
+

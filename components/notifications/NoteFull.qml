@@ -1,0 +1,6 @@
+import "."
+
+NoteMore {
+    full: true
+}
+
