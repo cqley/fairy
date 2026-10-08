@@ -58,7 +58,7 @@ Singleton {
     readonly property int noteW: 264
     readonly property int noteH: 48
     readonly property int noteOpenW: 300
-    readonly property int noteOpenH: 112
+    readonly property int noteTop: (noteH - noteIcon) / 2
     readonly property int noteFullW: 340
     readonly property int noteFullH: 156
     readonly property int noteIcon: 28
@@ -232,4 +232,5 @@ Singleton {
         return "file://" + value.split("/").map(encodeURIComponent).join("/")
     }
 }
+
 

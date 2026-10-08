@@ -20,6 +20,7 @@ Fade {
     property bool battery: false
     property bool charging: false
     readonly property int lines: full ? Theme.noteFullBodyLines : Theme.noteOpenBodyLines
+    readonly property real wanted: Math.max(Theme.noteH, col.y + col.height + Theme.noteTop)
 
     anchors.fill: parent
 
@@ -92,7 +93,7 @@ Fade {
     ClippingRectangle {
         id: chip
         x: Theme.noteIconX
-        anchors.verticalCenter: parent.verticalCenter
+        y: Theme.noteTop
         width: Theme.noteIcon
         height: Theme.noteIcon
         radius: Theme.noteIconR
@@ -169,11 +170,10 @@ Fade {
     }
 
     Column {
-        anchors.left: chip.right
-        anchors.leftMargin: Theme.noteTextGap
-        anchors.right: parent.right
-        anchors.rightMargin: Theme.noteTextRight
-        anchors.verticalCenter: parent.verticalCenter
+        id: col
+        x: chip.x + chip.width + Theme.noteTextGap
+        y: Theme.noteTop
+        width: Theme.noteOpenW - x - Theme.noteTextRight
         spacing: 1
 
         Txt {
@@ -208,4 +208,5 @@ Fade {
         }
     }
 }
+
 

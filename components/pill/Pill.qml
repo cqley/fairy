@@ -94,7 +94,7 @@ Item {
         : root.calm ? root.idleTargetW : Theme.w
 
     readonly property real targetH: Polkit.open ? auth.y + auth.height + Theme.authPad
-        : root.alert ? (root.full ? Theme.noteFullH : root.hot ? Theme.noteOpenH : Theme.noteH)
+        : root.alert ? (root.full ? Theme.noteFullH : root.hot ? more.wanted : Theme.noteH)
         : Launcher.open ? launch.y + launch.height + Theme.lpad
         : Power.open ? power.y + power.height + Theme.pwPad
         : Wallpaper.open ? wall.y + wall.height + Theme.wallPad
@@ -186,6 +186,7 @@ Item {
         }
 
         NoteMore {
+            id: more
             n: Notifs.current
             shown: root.alert && root.hot && !root.full
             ready: !root.resizing
@@ -360,4 +361,3 @@ Item {
         }
     }
 }
-
