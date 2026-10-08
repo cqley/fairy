@@ -84,7 +84,7 @@ Item {
         clockText.implicitWidth + battery.targetWidth + mic.targetWidth + record.targetWidth + Theme.pad
     )
     readonly property real targetW: Polkit.open ? Theme.authW
-        : root.alert ? (root.full ? Theme.noteFullW : root.hot ? Theme.noteOpenW : Theme.noteW)
+        : root.alert ? (root.hot ? Theme.noteOpenW : Theme.noteW)
         : Launcher.open ? Theme.launchW
         : Power.open ? Theme.powerW
         : Wallpaper.open ? Theme.wallW
@@ -94,7 +94,7 @@ Item {
         : root.calm ? root.idleTargetW : Theme.w
 
     readonly property real targetH: Polkit.open ? auth.y + auth.height + Theme.authPad
-        : root.alert ? (root.full ? Theme.noteFullH : root.hot ? more.wanted : Theme.noteH)
+        : root.alert ? (root.hot ? note.wanted : Theme.noteH)
         : Launcher.open ? launch.y + launch.height + Theme.lpad
         : Power.open ? power.y + power.height + Theme.pwPad
         : Wallpaper.open ? wall.y + wall.height + Theme.wallPad
@@ -180,21 +180,10 @@ Item {
         }
 
         Note {
+            id: note
             n: Notifs.current
-            shown: root.alert && !root.hot && !root.full
-            ready: !root.resizing
-        }
-
-        NoteMore {
-            id: more
-            n: Notifs.current
-            shown: root.alert && root.hot && !root.full
-            ready: !root.resizing
-        }
-
-        NoteFull {
-            n: Notifs.current
-            shown: root.alert && root.full
+            expanded: root.hot
+            shown: root.alert
             ready: !root.resizing
         }
 
@@ -361,3 +350,4 @@ Item {
         }
     }
 }
+

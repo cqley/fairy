@@ -12,7 +12,7 @@ Pick {
         genericName: String(a.genericName || ""),
         comment: String(a.comment || ""),
         keywords: Array.isArray(a.keywords) ? a.keywords.map(String) : [],
-        icon: src(a.icon)
+        iconName: String(a.icon || "")
     }))
     readonly property var raw: find(input.text)
     property var results: raw
@@ -51,6 +51,14 @@ Pick {
         return hits.sort((x, y) => x.k - y.k || c(y.a) - c(x.a) || x.a.name.length - y.a.name.length || byName(x.a, y.a)).slice(0, Theme.rows).map(h => h.a)
     }
 
+    readonly property var icons: Object.create(null)
+
+    function iconFor(name) {
+        if (!(name in icons))
+            icons[name] = src(name)
+        return icons[name]
+    }
+
     function src(icon) {
         const value = String(icon || "")
         if (value === "")
@@ -59,7 +67,7 @@ Pick {
     }
 
     function clear() {
-        hold()
+        reset()
         input.text = ""
     }
 
@@ -75,7 +83,7 @@ Pick {
 
     onRawChanged: {
         const r = results || []
-        const key = a => [a && a.id, a && a.name, a && a.comment, a && a.genericName, a && a.icon].map(String).join("\u0000")
+        const key = a => [a && a.id, a && a.name, a && a.comment, a && a.genericName, a && a.iconName].map(String).join("\u0000")
         const changed = raw.length !== r.length || raw.some((a, i) => key(a) !== key(r[i]))
         if (!changed) return
         results = raw
@@ -254,7 +262,7 @@ Pick {
                         id: icon
                         x: Theme.launchIconX
                         anchors.verticalCenter: parent.verticalCenter
-                        source: row.modelData.icon
+                        source: root.iconFor(row.modelData.iconName)
                         fallbackText: row.modelData.name.charAt(0).toLowerCase() || "?"
                         selected: row.selected
                         hovered: area.containsMouse

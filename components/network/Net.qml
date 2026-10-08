@@ -20,6 +20,7 @@ Singleton {
     property string secret: ""
     property string activeConnection: ""
     property bool canceling: false
+    property bool sent: false
 
     readonly property string title: {
         if (!enabled)
@@ -101,6 +102,7 @@ Singleton {
         asking = ""
         target = item.ssid
         secret = ""
+        sent = false
         up.command = ["nmcli", "device", "wifi", "connect", item.ssid]
         up.running = true
     }
@@ -114,6 +116,7 @@ Singleton {
         phase = "connecting"
         target = asking
         asking = ""
+        sent = true
         secret = psk
         if (up.running) {
             up.write(secret + "\n")
@@ -126,6 +129,7 @@ Singleton {
 
     function cancelAsk() {
         canceling = up.running
+        sent = false
         if (up.running)
             up.signal(15)
         asking = ""
@@ -323,6 +327,9 @@ Singleton {
                     else
                         root.error = "failed"
                 }
+                if (root.sent && needsSecret && root.error === "")
+                    root.error = "wrong password"
+                root.sent = false
                 if (root.asking === "") {
                     root.target = ""
                     root.secret = ""

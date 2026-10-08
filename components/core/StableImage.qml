@@ -13,7 +13,7 @@ Item {
     readonly property int status: image.status
     readonly property bool ready: image.status === Image.Ready
     readonly property bool failed: image.status === Image.Error
-    readonly property bool showPlaceholder: root.source === "" || root.failed || !root.everReady
+    readonly property bool showPlaceholder: root.source === "" || root.failed || (root.retain && !root.everReady)
 
     onReadyChanged: if (ready) everReady = true
 

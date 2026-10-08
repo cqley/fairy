@@ -8,8 +8,10 @@ import Quickshell.Widgets
 Fade {
     id: root
     property var n
+    property bool expanded: false
     property string summary: ""
     property string body: ""
+    property string appLabel: ""
     property string letter: "?"
     property string source: ""
     property string picture: ""
@@ -17,6 +19,7 @@ Fade {
     property bool critical: false
     property bool battery: false
     property bool charging: false
+    readonly property real wanted: Math.max(Theme.noteH, more.y + more.height + Theme.noteTop)
 
     anchors.fill: parent
 
@@ -48,6 +51,7 @@ Fade {
         if (!n) {
             summary = ""
             body = ""
+            appLabel = ""
             letter = "?"
             critical = false
             battery = false
@@ -65,6 +69,7 @@ Fade {
         critical = n.urgency === NotificationUrgency.Critical
 
         const name = String(n.appName || "").trim()
+        appLabel = battery ? "fairy" : name.toLowerCase()
         letter = ((name || "?")[0] || "?").toLowerCase()
         picture = battery ? "" : fileUrl(n.image)
         mark = battery ? "" : (fileUrl(n.appIcon) || fileUrl(n.desktopEntry))
@@ -87,7 +92,7 @@ Fade {
     ClippingRectangle {
         id: chip
         x: Theme.noteIconX
-        anchors.verticalCenter: parent.verticalCenter
+        y: Theme.noteTop
         width: Theme.noteIcon
         height: Theme.noteIcon
         radius: Theme.noteIconR
@@ -97,6 +102,7 @@ Fade {
             id: img
             anchors.fill: parent
             source: root.source
+            retain: false
             fillMode: Image.PreserveAspectCrop
             sourceSize: Qt.size(Theme.noteIcon * 2, Theme.noteIcon * 2)
             onFailedChanged: {
@@ -163,31 +169,78 @@ Fade {
         }
     }
 
-    Column {
-        anchors.left: chip.right
-        anchors.leftMargin: Theme.noteTextGap
-        anchors.right: parent.right
-        anchors.rightMargin: Theme.noteTextRight
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: 1
+    Fade {
+        anchors.fill: parent
+        shown: !root.expanded
 
-        Txt {
-            width: parent.width
-            text: root.summary
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            font.pixelSize: Theme.fsM
-            font.weight: Font.DemiBold
+        Column {
+            x: chip.x + chip.width + Theme.noteTextGap
+            width: parent.width - x - Theme.noteTextRight
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 1
+
+            Txt {
+                width: parent.width
+                text: root.summary
+                elide: Text.ElideRight
+                maximumLineCount: 1
+                font.pixelSize: Theme.fsM
+                font.weight: Font.DemiBold
+            }
+
+            Txt {
+                width: parent.width
+                text: root.body
+                visible: text !== ""
+                elide: Text.ElideRight
+                maximumLineCount: Theme.noteBodyLines
+                opacity: 0.6
+                font.pixelSize: Theme.fsS
+            }
         }
+    }
 
-        Txt {
-            width: parent.width
-            text: root.body
-            visible: text !== ""
-            elide: Text.ElideRight
-            maximumLineCount: Theme.noteBodyLines
-            opacity: 0.6
-            font.pixelSize: Theme.fsS
+    Fade {
+        anchors.fill: parent
+        shown: root.expanded
+
+        Column {
+            id: more
+            x: chip.x + chip.width + Theme.noteTextGap
+            y: Theme.noteTop
+            width: Theme.noteOpenW - x - Theme.noteTextRight
+            spacing: 1
+
+            Txt {
+                width: parent.width
+                text: root.appLabel
+                visible: text !== ""
+                elide: Text.ElideRight
+                maximumLineCount: 1
+                opacity: 0.45
+                font.pixelSize: Theme.fsXS
+                font.weight: Font.Medium
+            }
+
+            Txt {
+                width: parent.width
+                text: root.summary
+                elide: Text.ElideRight
+                maximumLineCount: 1
+                font.pixelSize: Theme.fsM
+                font.weight: Font.DemiBold
+            }
+
+            Txt {
+                width: parent.width
+                text: root.body
+                visible: text !== ""
+                elide: Text.ElideRight
+                wrapMode: Text.Wrap
+                maximumLineCount: Theme.noteOpenBodyLines
+                opacity: 0.6
+                font.pixelSize: Theme.fsS
+            }
         }
     }
 }

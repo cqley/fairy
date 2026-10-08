@@ -155,7 +155,7 @@ Singleton {
     }
 
     NotificationServer {
-        actionsSupported: true
+        actionsSupported: false
         bodySupported: true
         imageSupported: true
         keepOnReload: false
