@@ -148,7 +148,7 @@ Item {
         TapHandler {
             onTapped: {
                 if (root.alert)
-                    root.full = !root.full
+                    Notifs.dismiss()
                 else if (!root.modal && root.hot)
                     root.full = !root.full
             }
