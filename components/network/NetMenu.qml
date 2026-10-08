@@ -78,11 +78,11 @@ Pick {
     Keys.onPressed: e => {
         const k = e.key
         if (k === Qt.Key_Escape) {
-            if (ask)
+            if (ask || Net.busy)
                 Net.cancelAsk()
             else
                 Net.open = false
-        } else if (ask || Net.busy)
+        } else if (ask)
             return
         else if (k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space)
             run()
@@ -333,11 +333,15 @@ Pick {
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: !root.ask && !Net.busy
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onPositionChanged: m => root.aim(mapToItem(null, m.x, m.y), row.index)
+                        onPositionChanged: m => {
+                            if (!root.ask)
+                                root.aim(mapToItem(null, m.x, m.y), row.index)
+                        }
                         onClicked: {
+                            if (root.ask)
+                                Net.cancelAsk()
                             root.sel = row.index
                             root.run()
                         }
@@ -441,7 +445,7 @@ Pick {
 
     Wheel {
         anchors.fill: parent
-        enabled: !root.ask && !Net.busy
+        enabled: !root.ask
         onStep: n => root.move(n, false)
     }
 }

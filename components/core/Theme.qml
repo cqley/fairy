@@ -22,6 +22,7 @@ Singleton {
     readonly property int netPad: 12
     readonly property int netRowH: 36
     readonly property int netRows: 6
+    readonly property int netTimeout: 30000
     readonly property int netFieldH: 34
     readonly property int netToggleW: 36
     readonly property int netToggleH: 20
