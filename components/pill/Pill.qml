@@ -22,8 +22,8 @@ Item {
     readonly property bool alert: Notifs.current !== null && !modal
     readonly property bool calm: !alert && !modal
     readonly property bool resizing:
-        Math.abs(root.wAnim - root.targetW) > 0.5 ||
-        Math.abs(root.hAnim - root.targetH) > 0.5
+        Math.abs(root.wAnim - root.targetW) > Theme.settleEps ||
+        Math.abs(root.hAnim - root.targetH) > Theme.settleEps
     property bool media: false
     property real wAnim: Theme.w
     property real hAnim: Theme.h

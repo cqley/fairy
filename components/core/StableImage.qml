@@ -8,7 +8,6 @@ Item {
     property int fillMode: Image.PreserveAspectFit
     property bool retain: true
     property bool mipmap: true
-    property bool smooth: true
     property bool everReady: false
     property int retries: 0
     property int tried: 0
@@ -28,7 +27,7 @@ Item {
 
     Timer {
         id: retry
-        interval: 200
+        interval: Theme.imageRetry
         onTriggered: {
             root.tried++
             root.reload()

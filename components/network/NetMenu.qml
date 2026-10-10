@@ -102,12 +102,12 @@ Pick {
 
             Txt {
                 anchors.left: parent.left
-                anchors.leftMargin: 4
+                anchors.leftMargin: Theme.netTitleX
                 anchors.verticalCenter: parent.verticalCenter
                 text: Net.title
                 font.weight: Font.DemiBold
                 color: !Net.enabled ? Theme.red : Net.phase !== "" ? Theme.accent : Theme.fg
-                opacity: pulse.running ? 0.55 + 0.45 * pulse.val : 1
+                opacity: pulse.running ? Theme.dimMuted + (1 - Theme.dimMuted) * pulse.val : 1
 
 
                 Behavior on color {
@@ -151,13 +151,13 @@ Pick {
                 id: toggle
                 readonly property real gap: (height - Theme.netKnob) / 2
                 anchors.right: parent.right
-                anchors.rightMargin: 2
+                anchors.rightMargin: Theme.netToggleInset
                 anchors.verticalCenter: parent.verticalCenter
                 width: Theme.netToggleW
                 height: Theme.netToggleH
                 radius: height / 2
                 color: Net.enabled ? Theme.accent : Theme.tile
-                opacity: Net.busy ? 0.5 : 1
+                opacity: Net.busy ? Theme.dimMid : 1
                 transformOrigin: Item.Center
                 scale: toggleArea.pressed ? Theme.feedbackPressScale : toggleArea.containsMouse ? Theme.feedbackHoverScale : 1
                 antialiasing: true
@@ -217,7 +217,13 @@ Pick {
                 height: Math.min(root.n, Theme.netRows) * Theme.netRowH
                 clip: true
                 interactive: false
-                model: root.items
+                ScriptModel {
+                    id: netModel
+                    values: root.items
+                    objectProp: "ssid"
+                }
+
+                model: netModel
                 cacheBuffer: Theme.netRowH * Theme.netRows * 2
                 reuseItems: true
                 contentY: root.start * Theme.netRowH
@@ -258,7 +264,7 @@ Pick {
 
                     width: list.width
                     height: Theme.netRowH
-                    opacity: root.ask && Net.asking !== (modelData ? modelData.ssid : "") ? 0.35 : 1
+                    opacity: root.ask && Net.asking !== (modelData ? modelData.ssid : "") ? Theme.dimHint : 1
 
                     Behavior on opacity {
                         NumberAnimation {
@@ -290,7 +296,7 @@ Pick {
                     Row {
                         id: meta
                         anchors.right: parent.right
-                        anchors.rightMargin: 12
+                        anchors.rightMargin: Theme.netMetaR
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: Theme.rowGap
 
@@ -299,7 +305,7 @@ Pick {
                             text: row.status
                             font.pixelSize: Theme.fsS
                             color: Theme.accent
-                            opacity: row.busy ? 0.5 + 0.5 * pulse.val : row.status === "" ? 0 : 0.55
+                            opacity: row.busy ? Theme.dimMid + (1 - Theme.dimMid) * pulse.val : row.status === "" ? 0 : Theme.dimMuted
                             visible: text !== ""
 
                             Behavior on opacity {
@@ -314,13 +320,13 @@ Pick {
                         Lock {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: row.locked && row.status === ""
-                            opacity: 0.55
+                            opacity: Theme.dimMuted
                         }
 
                         Sig {
                             anchors.verticalCenter: parent.verticalCenter
-                            level: Math.round(row.sig * 4)
-                            opacity: row.busy ? 0.35 : 1
+                            level: Math.round(row.sig * Theme.sigBars)
+                            opacity: row.busy ? Theme.dimHint : 1
 
                             Behavior on opacity {
                                 NumberAnimation {
@@ -352,14 +358,14 @@ Pick {
 
         Item {
             width: parent.width
-            height: empty.implicitHeight + 8
+            height: empty.implicitHeight + Theme.netEmptyPad
             visible: Net.enabled && root.n === 0
 
             Txt {
                 id: empty
                 anchors.centerIn: parent
                 text: "no networks"
-                opacity: 0.45
+                opacity: Theme.dimEmpty
             }
         }
 
@@ -373,7 +379,7 @@ Pick {
             Txt {
                 text: "password for " + Net.asking
                 font.pixelSize: Theme.fsS
-                opacity: 0.55
+                opacity: Theme.dimMuted
             }
 
             Rectangle {
@@ -421,7 +427,7 @@ Pick {
                     anchors.leftMargin: Theme.rowR
                     anchors.verticalCenter: parent.verticalCenter
                     text: "password"
-                    opacity: 0.35
+                    opacity: Theme.dimHint
                     font.pixelSize: Theme.fsL
                     visible: pass.text === ""
                 }

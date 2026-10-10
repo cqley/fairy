@@ -34,6 +34,7 @@ Fade {
         nameFilters: ["*.png", "*.jpg", "*.jpeg", "*.webp", "*.bmp", "*.gif"]
         showDirs: false
         showDotAndDotDot: false
+        caseSensitive: false
         sortField: FolderListModel.Name
         onCountChanged: root.rebuild()
     }
@@ -133,7 +134,7 @@ Fade {
     Column {
         id: col
         width: parent.width
-        spacing: 10
+        spacing: Theme.wallGap
 
         Txt {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -174,7 +175,7 @@ Fade {
                             height: Theme.thumbH
                             transformOrigin: Item.Center
                             scale: cell.on ? Theme.wallFocusScale : area.pressed ? Theme.feedbackPressScale : area.containsMouse ? Theme.feedbackHoverScale : 1
-                            opacity: cell.on ? 1 : area.containsMouse ? 0.82 : 0.7
+                            opacity: cell.on ? 1 : area.containsMouse ? Theme.wallHoverOpacity : Theme.wallIdleOpacity
                             z: cell.on ? 1 : 0
 
                             Behavior on opacity { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
@@ -240,7 +241,7 @@ Fade {
             horizontalAlignment: Text.AlignHCenter
             text: root.n > 0 ? root.files[root.sel].name : ""
             elide: Text.ElideMiddle
-            opacity: 0.55
+            opacity: Theme.dimMuted
             font.pixelSize: Theme.fsS
         }
     }

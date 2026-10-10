@@ -45,6 +45,8 @@ Singleton {
             phase = ""
         }
         refresh()
+        if (enabled)
+            rescan.running = true
         poll.restart()
     } else {
         poll.stop()
@@ -258,7 +260,7 @@ Singleton {
 
     Process {
         id: scan
-        command: ["nmcli", "-t", "-f", "ACTIVE,SIGNAL,SSID,SECURITY", "device", "wifi", "list"]
+        command: ["nmcli", "-t", "-f", "ACTIVE,SIGNAL,SSID,SECURITY", "device", "wifi", "list", "--rescan", "no"]
         stdout: StdioCollector {
             onStreamFinished: {
                 if (root.enabled)
@@ -269,6 +271,18 @@ Singleton {
                 }
             }
         }
+    }
+
+    Process {
+        id: rescan
+        command: ["nmcli", "device", "wifi", "rescan"]
+        onExited: late.restart()
+    }
+
+    Timer {
+        id: late
+        interval: Theme.netRescanWait
+        onTriggered: if (root.open) root.refresh()
     }
 
     Process {
@@ -346,7 +360,7 @@ Singleton {
 
     Timer {
         id: settle
-        interval: 600
+        interval: Theme.netSettle
         onTriggered: {
             if (!root.busy)
                 root.clearPhase()
@@ -356,7 +370,7 @@ Singleton {
 
     Timer {
         id: poll
-        interval: root.busy ? 1500 : 4000
+        interval: root.busy ? Theme.netPollBusy : Theme.netPoll
         repeat: true
         onTriggered: root.refresh()
     }

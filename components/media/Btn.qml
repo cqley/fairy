@@ -14,7 +14,7 @@ Item {
     height: width
     transformOrigin: Item.Center
     scale: !enabled ? 1 : area.pressed ? Theme.feedbackPressScale : area.containsMouse ? Theme.feedbackHoverScale : 1
-    opacity: !enabled ? 0.3 : solid || area.containsMouse ? 1 : 0.75
+    opacity: !enabled ? Theme.btnDisabled : solid || area.containsMouse ? 1 : Theme.btnIdle
 
     Behavior on scale { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
     Behavior on opacity { NumberAnimation { duration: Theme.fade; easing.type: Theme.ease } }
@@ -24,7 +24,7 @@ Item {
         radius: height / 2
         color: Theme.accent
         visible: root.solid
-        opacity: area.pressed ? 0.85 : 1
+        opacity: area.pressed ? Theme.btnPressed : 1
         antialiasing: true
 
         Behavior on opacity { NumberAnimation { duration: Theme.feedbackDuration; easing.type: Theme.ease } }
@@ -43,13 +43,13 @@ Item {
     Shape {
         x: Math.round((root.width - width) / 2) + root.dx
         y: Math.round((root.height - height) / 2)
-        width: 24
-        height: 24
-        scale: (root.solid ? Theme.playGlyph : Theme.glyphS) / 24
+        width: Theme.iconGrid
+        height: Theme.iconGrid
+        scale: (root.solid ? Theme.playGlyph : Theme.glyphS) / Theme.iconGrid
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
-            strokeWidth: 2
+            strokeWidth: Theme.btnStroke
             strokeColor: root.ink
             fillColor: root.solid ? root.ink : "transparent"
             capStyle: ShapePath.RoundCap

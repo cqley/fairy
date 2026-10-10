@@ -168,7 +168,7 @@ Fade {
             x: chip.x + chip.width + Theme.noteTextGap
             width: parent.width - x - Theme.noteTextRight
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 1
+            spacing: Theme.noteLineGap
 
             Txt {
                 width: parent.width
@@ -185,7 +185,7 @@ Fade {
                 visible: text !== ""
                 elide: Text.ElideRight
                 maximumLineCount: Theme.noteBodyLines
-                opacity: 0.6
+                opacity: Theme.dimSoft
                 font.pixelSize: Theme.fsS
             }
         }
@@ -200,7 +200,7 @@ Fade {
             x: chip.x + chip.width + Theme.noteTextGap
             y: Theme.noteTop
             width: Theme.noteOpenW - x - Theme.noteTextRight
-            spacing: 1
+            spacing: Theme.noteLineGap
 
             Txt {
                 width: parent.width
@@ -208,7 +208,7 @@ Fade {
                 visible: text !== ""
                 elide: Text.ElideRight
                 maximumLineCount: 1
-                opacity: 0.45
+                opacity: Theme.dimEmpty
                 font.pixelSize: Theme.fsXS
                 font.weight: Font.Medium
             }
@@ -229,7 +229,7 @@ Fade {
                 elide: Text.ElideRight
                 wrapMode: Text.Wrap
                 maximumLineCount: Theme.noteOpenBodyLines
-                opacity: 0.6
+                opacity: Theme.dimSoft
                 font.pixelSize: Theme.fsS
             }
         }

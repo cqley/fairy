@@ -151,7 +151,7 @@ Pick {
                     width: Theme.launchSearchHandleW
                     height: Theme.launchSearchHandleH
                     radius: height / 2
-                    rotation: 45
+                    rotation: Theme.launchSearchHandleRot
                     transformOrigin: Item.Left
                     color: Theme.fg
                     antialiasing: true
@@ -197,7 +197,7 @@ Pick {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "search"
                 visible: input.text === ""
-                opacity: 0.4
+                opacity: Theme.dimGhost
                 font.pixelSize: Theme.fsL
             }
         }
@@ -276,7 +276,7 @@ Pick {
                         anchors.right: parent.right
                         anchors.rightMargin: Theme.rowR
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 1
+                        spacing: Theme.launchTextRowGap
 
                         Txt {
                             width: parent.width
@@ -292,7 +292,7 @@ Pick {
                             visible: text !== ""
                             elide: Text.ElideRight
                             maximumLineCount: 1
-                            opacity: 0.6
+                            opacity: Theme.dimSoft
                             font.pixelSize: Theme.fsXS
                         }
                     }

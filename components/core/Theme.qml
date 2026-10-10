@@ -224,6 +224,105 @@ Singleton {
     readonly property real batYellowAt: 0.25
     readonly property int ease: Easing.OutCubic
 
+    readonly property int fsXXS: 9
+    readonly property int fsXL: 14
+    readonly property int fsXXL: 15
+    readonly property int iconGrid: 24
+    readonly property real iconStroke: 1.8
+    readonly property real btnStroke: 2
+    readonly property real dimHint: 0.35
+    readonly property real dimGhost: 0.4
+    readonly property real dimEmpty: 0.45
+    readonly property real dimMid: 0.5
+    readonly property real dimMuted: 0.55
+    readonly property real dimSoft: 0.6
+    readonly property int ruleH: 1
+    readonly property real ruleOpacity: 0.1
+    readonly property real settleEps: 0.5
+    readonly property int noteLineGap: 1
+
+    readonly property int authSpacing: 12
+    readonly property int authHeadGap: 10
+    readonly property int authBtnGap: 8
+    readonly property int authGlyph: 16
+    readonly property int authIconR: authFieldR - 2
+    readonly property int authFieldIconX: 12
+    readonly property int authFieldTextX: 40
+    readonly property int authFieldTextPad: 52
+    readonly property int authBtnPadX: 28
+    readonly property real authPressed: 0.82
+    readonly property real authDisabled: 0.45
+
+    readonly property int pwIconY: 11
+    readonly property int pwLabelY: 42
+
+    readonly property int weekCells: 9
+    readonly property int weekCenter: 4
+    readonly property int weekLead: 1
+    readonly property int weekDays: 7
+    readonly property int weekGap: 4
+    readonly property int weekTodayR: 11
+    readonly property real weekFadeMin: 0.12
+    readonly property real weekFadeSpan: 4.7
+    readonly property real todayFill: 0.15
+    readonly property real outMonth: 0.25
+    readonly property int calSlide: 10
+    readonly property int calGap: 6
+    readonly property int calTitleX: 4
+    readonly property int calHeadH: 16
+
+    readonly property int mediaColGap: 6
+    readonly property int mediaTextGap: 2
+    readonly property int mediaCtlGap: 4
+    readonly property int artR: 10
+    readonly property int playNudge: 1
+    readonly property int barPad: 4
+    readonly property int barHit: 6
+    readonly property int knobS: 7
+    readonly property int knobY: -2
+    readonly property real knobScrub: 1.15
+    readonly property real btnDisabled: 0.3
+    readonly property real btnIdle: 0.75
+    readonly property real btnPressed: 0.85
+
+    readonly property int sigBars: 4
+    readonly property int sigGap: 2
+    readonly property int sigW: 3
+    readonly property int sigH: 4
+    readonly property int sigStep: 2
+    readonly property int sigR: 1
+    readonly property real sigOn: 0.9
+    readonly property real sigOff: 0.2
+    readonly property int lockW: 14
+    readonly property int lockH: 12
+    readonly property int lockArcW: 8
+    readonly property int lockArcH: 6
+    readonly property int lockArcR: 4
+    readonly property real lockBorder: 1.4
+    readonly property int lockBodyY: 4
+    readonly property int lockBodyW: 10
+    readonly property int lockBodyH: 8
+    readonly property int lockBodyR: 2
+    readonly property int netTitleX: 4
+    readonly property int netToggleInset: 2
+    readonly property int netMetaR: 12
+    readonly property int netEmptyPad: 8
+    readonly property int netSettle: 600
+    readonly property int netPollBusy: 1500
+    readonly property int netPoll: 4000
+    readonly property int netRescanWait: 2500
+
+    readonly property int wallGap: 10
+    readonly property real wallHoverOpacity: 0.82
+    readonly property real wallIdleOpacity: 0.7
+    readonly property int launchSearchHandleRot: 45
+    readonly property int launchTextRowGap: 1
+    readonly property int recordTick: 1000
+    readonly property int imageRetry: 200
+
+    readonly property int dwellMin: 500
+    readonly property int dwellNever: 5000
+
     function url(path) {
         const value = String(path || "")
         if (value === "" || /^[a-z][a-z0-9+.-]*:/i.test(value))

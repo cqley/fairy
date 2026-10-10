@@ -96,13 +96,13 @@ Fade {
 
                 Shape {
                     x: Math.round((tile.width - width) / 2) + tile.modelData.dx
-                    y: 11
-                    width: 24
-                    height: 24
+                    y: Theme.pwIconY
+                    width: Theme.iconGrid
+                    height: Theme.iconGrid
                     preferredRendererType: Shape.CurveRenderer
 
                     ShapePath {
-                        strokeWidth: 1.8
+                        strokeWidth: Theme.iconStroke
                         strokeColor: tile.ink
                         fillColor: "transparent"
                         capStyle: ShapePath.RoundCap
@@ -114,10 +114,10 @@ Fade {
 
                 Txt {
                     x: Math.round((tile.width - width) / 2)
-                    y: 42
+                    y: Theme.pwLabelY
                     text: tile.modelData.label
                     color: tile.ink
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.fsS
                 }
 
                 MouseArea {
