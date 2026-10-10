@@ -10,12 +10,30 @@ Item {
     property bool mipmap: true
     property bool smooth: true
     property bool everReady: false
+    property int retries: 0
+    property int tried: 0
     readonly property int status: image.status
     readonly property bool ready: image.status === Image.Ready
     readonly property bool failed: image.status === Image.Error
     readonly property bool showPlaceholder: root.source === "" || root.failed || !root.everReady
 
     onReadyChanged: if (ready) everReady = true
+    onSourceChanged: tried = 0
+    onFailedChanged: if (failed && tried < retries) retry.restart()
+
+    function reload() {
+        image.source = ""
+        image.source = Qt.binding(() => root.source)
+    }
+
+    Timer {
+        id: retry
+        interval: 200
+        onTriggered: {
+            root.tried++
+            root.reload()
+        }
+    }
 
     Image {
         id: image

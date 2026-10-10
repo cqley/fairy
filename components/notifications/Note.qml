@@ -63,6 +63,8 @@ Fade {
         picture = battery ? "" : fileUrl(n.image)
         mark = battery ? "" : (fileUrl(n.appIcon) || fileUrl(n.desktopEntry))
         source = picture || mark
+        if (img.failed)
+            img.reload()
     }
 
     onNChanged: refresh()
@@ -91,6 +93,7 @@ Fade {
             id: img
             anchors.fill: parent
             source: root.source
+            retries: 2
             fillMode: Image.PreserveAspectCrop
             sourceSize: Qt.size(Theme.noteIcon * 2, Theme.noteIcon * 2)
             onFailedChanged: {
