@@ -40,6 +40,21 @@ Singleton {
         hold.restart()
     }
 
+    function trim(list) {
+        const cut = list.length - Theme.notificationQueueMax
+        if (cut <= 0)
+            return list
+        for (const n of list.slice(0, cut))
+            if (n && !n.system && n.tracked)
+                n.expire()
+        return list.slice(cut)
+    }
+
+    function touched() {
+        if (current && !hovered)
+            armHold(current)
+    }
+
     function sameId(a, b) {
         return a && b && !a.system && !b.system && a.id === b.id
     }
@@ -64,7 +79,7 @@ Singleton {
             return
         }
 
-        queue = [...queue, n].slice(-Theme.notificationQueueMax)
+        queue = trim([...queue, n])
         if (current === null && !gap.running)
             pump()
     }
@@ -75,7 +90,7 @@ Singleton {
         if (duplicate)
             return
 
-        queue = [...queue, {
+        queue = trim([...queue, {
             system: true,
             kind: "battery",
             summary: summary,
@@ -85,7 +100,7 @@ Singleton {
             image: "",
             urgency: NotificationUrgency.Normal,
             charging: charging
-        }].slice(-Theme.notificationQueueMax)
+        }])
         if (current === null && !gap.running)
             pump()
     }
@@ -152,6 +167,10 @@ Singleton {
             if (root.current === item)
                 root.next()
         }
+        function onSummaryChanged() { root.touched() }
+        function onBodyChanged() { root.touched() }
+        function onUrgencyChanged() { root.touched() }
+        function onExpireTimeoutChanged() { root.touched() }
     }
 
     NotificationServer {

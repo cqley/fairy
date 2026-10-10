@@ -48,19 +48,8 @@ Fade {
     }
 
     function refresh() {
-        if (!n) {
-            summary = ""
-            body = ""
-            appLabel = ""
-            letter = "?"
-            critical = false
-            battery = false
-            charging = false
-            source = ""
-            picture = ""
-            mark = ""
+        if (!n)
             return
-        }
 
         summary = plain(n.summary)
         body = plain(n.body)
