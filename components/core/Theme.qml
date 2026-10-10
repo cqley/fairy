@@ -218,6 +218,7 @@ Singleton {
     readonly property real feedbackFocusBorder: 1
     readonly property int dwell: 3000
     readonly property int dwellCritical: 5000
+    readonly property int dwellMax: 15000
     readonly property int notificationQueueMax: 32
     readonly property real batRedAt: 0.15
     readonly property real batYellowAt: 0.25

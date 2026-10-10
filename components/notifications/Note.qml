@@ -102,7 +102,6 @@ Fade {
             id: img
             anchors.fill: parent
             source: root.source
-            retain: false
             fillMode: Image.PreserveAspectCrop
             sourceSize: Qt.size(Theme.noteIcon * 2, Theme.noteIcon * 2)
             onFailedChanged: {
